@@ -31,6 +31,9 @@
 3. 填入你的 API Key 和 Base URL (例如本地 Ollama填 `http://localhost:11434/v1/chat/completions`)。
 4. 点击检查连通性。
 
+## 🔍 关键词 (Keywords)
+AI写作, 小说创作, 网文工具, 码字软件, 写作助手, 创意写作, DeepSeek, Claude, 本地存储, 隐私保护, 单文件应用, 离线写作.
+
 ## ☕ 支持作者 (Sponsor)
 
 Hyacinth Writer 是一个完全免费的开源项目。
