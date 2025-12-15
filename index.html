@@ -1,0 +1,3226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyacinth Writer v29.9.12 - ZeroGravity Edition</title>
+    <link
+        href="https://fonts.loli.net/css2?family=Cinzel:wght@500;700&family=Great+Vibes&family=Noto+Serif+SC:wght@300;500;700&family=Ma+Shan+Zheng&family=Inter:wght@200;300;400;600&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+    <style>
+        :root {
+            /* --- Palette (Visual Noise Reduced) --- */
+            --bg-base: #f4f6f9;
+            --bg-paper: #ffffff;
+            --glass-surface: rgba(255, 255, 255, 0.70);
+
+            /* [P5-B] 降噪：降低边框不透明度，更通透 */
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --glass-highlight: rgba(255, 255, 255, 0.9);
+
+            /* --- Typography (Offline Safe) --- */
+            --text-main: #2c2e33;
+            --text-sub: #6b7280;
+
+            /* --- Accents (Hyacinth Purple) --- */
+            --accent-primary: #9b59b6;
+            --accent-secondary: #e056fd;
+            --accent-deep: #8e44ad;
+            --accent-glow: rgba(155, 89, 182, 0.2);
+            --accent-shadow: rgba(155, 89, 182, 0.25);
+            --accent-lavender: #a29bfe;
+
+            /* --- UI States --- */
+            --active-item: rgba(155, 89, 182, 0.06);
+            --input-bg: rgba(255, 255, 255, 0.5);
+
+            /* --- Shadows (Refined) --- */
+            --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.03), 0 0 0 1px rgba(255, 255, 255, 0.4);
+            --shadow-float: 0 20px 40px -10px rgba(50, 50, 93, 0.1), 0 10px 20px -10px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            --shadow-island: 0 4px 15px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.3);
+
+            /* --- Fonts (System Fallback Added) --- */
+            --font-script: 'Great Vibes', 'Snell Roundhand', cursive;
+            --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', 'Times New Roman', serif;
+            --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+
+            --line-height-editor: 1.8;
+
+            /* --- Glass Physics --- */
+            --glass-opacity-base: 0.70;
+            --glass-opacity-hover: 0.85;
+            --glass-blur-strength: 24px;
+        }
+
+        body.dark-mode {
+            --bg-base: #0f0e13;
+            --bg-paper: #18171d;
+            --glass-surface: rgba(25, 24, 30, 0.80);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+            --text-main: #e8e6eb;
+            --text-sub: #8a8495;
+            --accent-primary: #c084fc;
+            --accent-secondary: #eabfff;
+            --accent-deep: #a855f7;
+            --accent-glow: rgba(192, 132, 252, 0.15);
+            --accent-shadow: rgba(0, 0, 0, 0.6);
+            --accent-lavender: #b3b3ff;
+            --active-item: rgba(192, 132, 252, 0.12);
+            --input-bg: rgba(255, 255, 255, 0.03);
+            --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            --shadow-float: 0 20px 60px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            --shadow-island: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            --glass-opacity-base: 0.60;
+            --glass-opacity-hover: 0.80;
+        }
+
+        * {
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-serif);
+            height: 100vh;
+            overflow: hidden;
+            background-color: var(--bg-base);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(155, 89, 182, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(224, 86, 253, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(142, 68, 173, 0.1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(155, 89, 182, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+            opacity: 0.8;
+        }
+
+        /* --- Top Bar --- */
+        #os-bar {
+            height: 64px;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            background: var(--glass-surface);
+            backdrop-filter: blur(20px) saturate(160%);
+            border-bottom: 1px solid var(--glass-border);
+            border-top: 1px solid var(--glass-highlight);
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .bar-left {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .bar-left .btn {
+            color: #202124 !important;
+            border-color: transparent;
+            background: transparent;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        body.dark-mode .bar-left .btn {
+            color: #e8e6eb !important;
+        }
+
+        .bar-left .btn:hover {
+            opacity: 1;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .state-tag {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 30px;
+            padding: 0 16px;
+            min-width: 90px;
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: var(--font-ui);
+            color: #5f6368;
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            user-select: none;
+        }
+
+        body.dark-mode .state-tag {
+            color: #8a8495;
+        }
+
+        .state-tag.writing {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            background: var(--active-item);
+            animation: breathe-purple 3s infinite ease-in-out;
+        }
+
+        @keyframes breathe-purple {
+
+            0%,
+            100% {
+                box-shadow: 0 0 5px var(--accent-glow);
+                opacity: 0.9;
+            }
+
+            50% {
+                box-shadow: 0 0 15px var(--accent-glow);
+                opacity: 1;
+            }
+        }
+
+        .poetic-script {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 22px;
+            letter-spacing: 0.4em;
+            margin-left: 20px;
+            background: linear-gradient(90deg, #5f6368 0%, #9b59b6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            opacity: 0.85;
+            user-select: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        body.dark-mode .poetic-script {
+            background: linear-gradient(90deg, #8a8495 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .bar-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .bar-right {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+            padding-top: 2px;
+        }
+
+        .model-tag {
+            font-size: 11px;
+            font-family: var(--font-ui);
+            background: rgba(0, 0, 0, 0.03);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--glass-border);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .brand-script {
+            font-size: 0 !important;
+            display: flex;
+            align-items: baseline;
+        }
+
+        .brand-script::before {
+            content: 'Hyacinth';
+            font-family: var(--font-script);
+            font-size: 34px;
+            background: linear-gradient(135deg, #9b59b6 0%, #e056fd 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 5px 20px var(--accent-glow);
+            transform: translateY(2px);
+        }
+
+        .brand-script::after {
+            content: 'WRITER';
+            font-family: 'Cinzel', serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            color: var(--accent-lavender);
+            opacity: 0.9;
+            position: relative;
+            top: -2px;
+        }
+
+        .brand-sub {
+            display: none;
+        }
+
+        .bar-actions .btn {
+            color: #202124 !important;
+            border: 1px solid transparent;
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        body.dark-mode .bar-actions .btn {
+            color: #e8e6eb !important;
+        }
+
+        .bar-actions .btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .bar-actions {
+            display: flex;
+            gap: 12px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .theme-toggle-btn svg {
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .theme-toggle-btn:hover svg {
+            transform: rotate(15deg) scale(1.1);
+            stroke: var(--accent-primary);
+        }
+
+        .theme-toggle-btn:active {
+            transform: scale(0.95);
+        }
+
+        .petal {
+            position: absolute;
+            top: -20px;
+            background: var(--accent-primary);
+            opacity: 0;
+            border-radius: 20px 0;
+            animation: falling-local 5s infinite linear;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .petal:nth-child(1) {
+            left: -20%;
+            animation-delay: 0s;
+            width: 8px;
+            height: 8px;
+        }
+
+        .petal:nth-child(2) {
+            left: 110%;
+            animation-delay: 2s;
+            background: var(--accent-secondary);
+            width: 12px;
+            height: 12px;
+        }
+
+        .petal:nth-child(3) {
+            left: -10%;
+            animation-delay: 1s;
+            width: 6px;
+            height: 6px;
+        }
+
+        .petal:nth-child(4) {
+            left: 120%;
+            animation-delay: 3.5s;
+            width: 9px;
+            height: 9px;
+        }
+
+        @keyframes falling-local {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 0.6;
+            }
+
+            80% {
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translateY(50px) rotate(180deg);
+                opacity: 0;
+            }
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, var(--glass-opacity-base));
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        body.dark-mode .glass-panel {
+            background: rgba(25, 24, 30, var(--glass-opacity-base));
+        }
+
+        /* --- Workspace & Sidebar --- */
+        #workspace {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            padding: 25px;
+            gap: 25px;
+            position: relative;
+            z-index: 10;
+            height: calc(100vh - 64px);
+        }
+
+        #config-panel {
+            width: 340px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100%;
+            max-height: 100%;
+            flex-shrink: 0;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            margin-left: 0;
+            opacity: 1;
+        }
+
+        #config-panel.closed {
+            width: 0;
+            padding: 0;
+            margin-left: -20px;
+            opacity: 0;
+            pointer-events: none;
+            border: none;
+        }
+
+        .panel-tabs {
+            display: flex;
+            padding: 12px;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            text-align: center;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-sub);
+            border-radius: 20px;
+            background: transparent;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .tab-btn.active {
+            background: var(--bg-paper);
+            color: var(--accent-primary);
+            border: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: none;
+            min-height: 0;
+        }
+
+        .panel-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Editor & Paper --- */
+        #editor-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .paper {
+            width: 100%;
+            max-width: 900px;
+            height: 100%;
+            background-color: var(--bg-paper);
+            border-radius: 6px;
+            box-shadow: var(--shadow-float);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+            background-size: 100% 36px;
+            background-position: 0 47px;
+            position: relative;
+        }
+
+        .paper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            opacity: 0.5;
+            border-radius: 6px 6px 0 0;
+        }
+
+        #editor {
+            flex: 1;
+            padding: 100px 0 60px;
+            outline: none;
+            font-size: 18px;
+            color: var(--text-main);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            letter-spacing: 0.04em;
+            text-align: justify;
+            width: 100%;
+            max-width: 75ch;
+            margin: 0 auto;
+            text-shadow: 0 0 1px rgba(0, 0, 0, 0.05);
+        }
+
+        #editor::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #editor::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+        }
+
+        #staging-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            top: auto;
+            height: 40%;
+            background: var(--bg-base);
+            border-top: 1px solid var(--accent-primary);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            backdrop-filter: blur(20px);
+        }
+
+        #staging-area.active {
+            display: flex;
+            animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        #staging-text {
+            flex: 1;
+            padding: 15px 25px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            color: var(--text-main);
+        }
+
+        .paper-toolbar {
+            height: 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            position: absolute;
+            top: 12px;
+            left: 16px;
+            right: 16px;
+            margin: 0;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-island);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            z-index: 20;
+        }
+
+        body.dark-mode .paper-toolbar {
+            background: rgba(30, 30, 35, 0.6);
+        }
+
+        .paper-toolbar:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(1px);
+        }
+
+        body.dark-mode .paper-toolbar:hover {
+            background: rgba(30, 30, 35, 0.9);
+        }
+
+        /* --- Components --- */
+        .btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: var(--input-bg);
+            cursor: pointer;
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        }
+
+        .btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px var(--accent-glow);
+        }
+
+        .btn.active {
+            border-color: var(--accent-primary);
+            background: var(--active-item);
+            color: var(--accent-primary);
+            box-shadow: inset 0 0 0 1px var(--accent-primary), 0 4px 10px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        /* 主操作按钮 */
+        .btn-gen {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.85), rgba(224, 86, 253, 0.75));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #fff;
+            font-weight: 600;
+            letter-spacing: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-top-color: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(155, 89, 182, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            margin-top: 10px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-gen:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 12px 35px rgba(155, 89, 182, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+            filter: brightness(1.1);
+        }
+
+        .btn-gen:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 4px 10px rgba(155, 89, 182, 0.4);
+        }
+
+        .btn-gen:disabled {
+            background: rgba(100, 100, 100, 0.2);
+            border-color: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-gen.btn-ghost {
+            width: auto;
+            min-width: 100px;
+            margin: 0;
+            background: rgba(150, 150, 160, 0.1);
+            border: 1px solid rgba(150, 150, 160, 0.2);
+            color: var(--text-main);
+            box-shadow: none;
+            letter-spacing: 1px;
+        }
+
+        .btn-gen.btn-ghost:hover {
+            background: rgba(155, 89, 182, 0.15);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .btn-danger {
+            color: #ff7675;
+            border-color: rgba(255, 118, 117, 0.3);
+            background: transparent;
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 118, 117, 0.1);
+            border-color: #ff7675;
+            color: #d63031;
+        }
+
+        /* --- Ink Spirit --- */
+        #ink-spirit {
+            position: fixed;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform: translateY(10px);
+        }
+
+        #ink-spirit.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .ink-trigger {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 240, 255, 0.8));
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+            font-size: 16px;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+        }
+
+        .ink-trigger:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.5);
+        }
+
+        body.dark-mode .ink-trigger {
+            background: linear-gradient(135deg, rgba(30, 30, 35, 0.9), rgba(40, 40, 50, 0.8));
+            border-color: var(--accent-lavender);
+            color: var(--accent-lavender);
+        }
+
+        .ink-menu {
+            display: flex;
+            gap: 8px;
+            padding: 6px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        #ink-spirit.expanded .ink-menu {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) scale(1);
+        }
+
+        #ink-spirit.expanded .ink-trigger {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        body.dark-mode .ink-menu {
+            background: rgba(30, 30, 35, 0.85);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .ink-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ink-btn:hover {
+            background: var(--active-item);
+            color: var(--accent-primary);
+        }
+
+        .ink-input-wrapper {
+            border-left: 1px solid var(--glass-border);
+            padding-left: 8px;
+            margin-left: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ink-input {
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            font-size: 12px;
+            width: 120px;
+            outline: none;
+        }
+
+        /* --- Tool List & Inputs --- */
+        .input-std {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 13px;
+            transition: all 0.2s;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .input-std:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-glow), inset 0 1px 2px rgba(0, 0, 0, 0.02);
+            background: var(--bg-paper);
+        }
+
+        .inhibited {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(1);
+            transition: 0.3s;
+        }
+
+        #tool-list {
+            border: none;
+            padding: 0;
+        }
+
+        .tool-cat {
+            margin-bottom: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s;
+        }
+
+        .tool-cat:hover {
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .tool-cat-head {
+            padding: 12px 14px;
+            background: rgba(0, 0, 0, 0.02);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-ui);
+            color: var(--text-sub);
+            transition: 0.2s;
+            user-select: none;
+        }
+
+        .tool-cat.open .tool-cat-head {
+            color: var(--accent-primary);
+            background: var(--active-item);
+        }
+
+        .tool-cat-body {
+            display: none;
+            padding: 6px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .tool-cat.open .tool-cat-body {
+            display: block;
+        }
+
+        .tool-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-bottom: 2px;
+            transition: 0.2s;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tool-item:hover {
+            background: var(--accent-primary);
+            color: #fff;
+            transform: translateX(3px);
+            box-shadow: 0 2px 8px var(--accent-glow);
+        }
+
+        .tool-del-btn {
+            opacity: 0;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.2);
+            margin-left: 5px;
+            transition: 0.2s;
+        }
+
+        .tool-item:hover .tool-del-btn {
+            opacity: 1;
+        }
+
+        .tool-del-btn:hover {
+            background: #ff7675;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .forge-btn {
+            border: 2px dashed var(--glass-border);
+            border-radius: 8px;
+            margin-top: 15px;
+            padding: 12px;
+            text-align: center;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.02);
+            font-size: 12px;
+        }
+
+        .forge-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            background: var(--active-item);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--glass-border);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.01);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            background: var(--active-item);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .fate-deck {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+            perspective: 1000px;
+        }
+
+        .fate-card {
+            flex: 1;
+            min-width: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fate-card:hover {
+            transform: translateY(-5px);
+            background: var(--active-item);
+        }
+
+        .fate-card strong {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: var(--text-main);
+        }
+
+        .fate-card span {
+            font-size: 10px;
+            opacity: 0.7;
+            display: block;
+            line-height: 1.2;
+            color: var(--text-sub);
+        }
+
+        .fate-card.conflict {
+            border-color: rgba(255, 118, 117, 0.3);
+        }
+
+        .fate-card.conflict:hover {
+            box-shadow: 0 5px 15px rgba(255, 118, 117, 0.2);
+            border-color: #ff7675;
+        }
+
+        .fate-card.mystery {
+            border-color: rgba(116, 185, 255, 0.3);
+        }
+
+        .fate-card.mystery:hover {
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.2);
+            border-color: #74b9ff;
+        }
+
+        .fate-card.emotion {
+            border-color: rgba(253, 121, 168, 0.3);
+        }
+
+        .fate-card.emotion:hover {
+            box-shadow: 0 5px 15px rgba(253, 121, 168, 0.2);
+            border-color: #fd79a8;
+        }
+
+        .fate-collapse {
+            width: 100%;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 4px;
+            opacity: 0.6;
+            transition: 0.2s;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .fate-collapse:hover {
+            opacity: 1;
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--accent-primary);
+        }
+
+        .snapshot-item {
+            padding: 10px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .snapshot-item:hover {
+            background: var(--active-item);
+            border-color: var(--accent-primary);
+        }
+
+        .snapshot-meta {
+            font-size: 11px;
+            color: var(--text-sub);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .snapshot-reason {
+            font-weight: bold;
+            color: var(--text-main);
+            font-size: 12px;
+        }
+
+        .snapshot-time {
+            font-family: monospace;
+            opacity: 0.7;
+        }
+
+        .btn-restore {
+            padding: 4px 8px;
+            font-size: 11px;
+            border: 1px solid var(--glass-border);
+            background: transparent;
+            color: var(--accent-primary);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-restore:hover {
+            background: var(--accent-primary);
+            color: #fff;
+        }
+
+        .book-name-tooltip {
+            position: absolute;
+            top: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-surface);
+            border: 1px solid var(--accent-primary);
+            backdrop-filter: blur(8px);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: var(--font-ui);
+            white-space: nowrap;
+            color: var(--accent-primary);
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.2s;
+            z-index: 200;
+        }
+
+        .book-name-tooltip.visible {
+            opacity: 1;
+            top: 110%;
+        }
+
+        .typewriter-active #editor {
+            padding-top: 35vh !important;
+            padding-bottom: 50vh !important;
+            scroll-behavior: smooth;
+        }
+
+        .bloom-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            background: var(--accent-primary);
+            width: 6px;
+            height: 6px;
+            border-radius: 50% 0 50% 50%;
+            box-shadow: 0 0 5px var(--accent-glow);
+            animation: bloom-fall 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes bloom-fall {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), 30px) rotate(var(--rot)) scale(0);
+            }
+        }
+
+        #global-tooltip {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: max-content;
+            max-width: 260px;
+            padding: 12px 16px;
+            background: rgba(20, 20, 25, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--accent-primary);
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.6;
+            text-align: left;
+            white-space: pre-wrap;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            transform: translateY(10px);
+        }
+
+        #global-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Modal - High Z-Index */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            width: 400px;
+            background: var(--bg-paper);
+            border-radius: 12px;
+            box-shadow: var(--shadow-float);
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            transform: translateY(20px);
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+            max-height: 85vh;
+        }
+
+        .modal.active .modal-box {
+            transform: translateY(0);
+        }
+
+        .settings-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .settings-tab {
+            padding-bottom: 2px;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-sub);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.2s;
+        }
+
+        .settings-tab.active {
+            color: var(--accent-primary);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent-primary);
+        }
+
+        .settings-tab.tab-close {
+            margin-left: auto;
+            border: none;
+            font-size: 16px;
+            opacity: 0.5;
+        }
+
+        .settings-tab.tab-close:hover {
+            opacity: 1;
+            color: #ff7675;
+        }
+
+        .settings-body {
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .settings-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: var(--text-sub);
+        }
+
+        .lore-card {
+            padding: 10px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: rgba(0, 0, 0, 0.02);
+            font-size: 12px;
+            position: relative;
+        }
+
+        .lore-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .lore-desc {
+            color: var(--text-sub);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .lore-mention {
+            color: var(--accent-primary);
+            border-bottom: 1px dashed var(--accent-primary);
+            cursor: help;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            padding: 4px 0;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.05);
+        }
+
+        .task-check {
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .task-text {
+            flex: 1;
+            transition: 0.2s;
+        }
+
+        .task-text.done {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .task-del {
+            cursor: pointer;
+            opacity: 0.3;
+            font-size: 10px;
+        }
+
+        .task-del:hover {
+            opacity: 1;
+            color: #ff7675;
+        }
+
+        /* [NEW] Fixed Chapter Items CSS */
+        .chapter-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            overflow: hidden;
+        }
+
+        .chapter-item input {
+            min-width: 0;
+            flex: 1;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            border: none;
+            background: transparent;
+            font-weight: bold;
+            color: inherit;
+        }
+
+        .chapter-item input:focus {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        .chapter-item:hover {
+            background: var(--active-item);
+            border-color: var(--glass-border);
+            transform: translateX(2px);
+        }
+
+        .chapter-item.active {
+            border-color: var(--accent-primary);
+            background: var(--active-item);
+            font-weight: bold;
+            color: var(--accent-primary);
+        }
+
+        .chapter-item.volume {
+            border: 1px dashed var(--glass-border);
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        /* --- Grimoire (Persona) Interactions --- */
+        .grimoire-card {
+            padding: 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+
+        .grimoire-title {
+            font-weight: bold;
+            color: var(--accent-primary);
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .grimoire-preview {
+            font-size: 11px;
+            color: var(--text-sub);
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        div:not(.inhibited)>.grimoire-card:hover {
+            transform: translateY(-2px) scale(1.02);
+            background: var(--bg-paper);
+            box-shadow: 0 4px 12px var(--accent-glow);
+            border-color: var(--accent-lavender);
+        }
+
+        div:not(.inhibited)>.grimoire-card.active {
+            border-color: var(--accent-primary);
+            background: rgba(155, 89, 182, 0.08);
+            box-shadow: inset 0 0 0 1px var(--accent-primary), 0 6px 15px var(--accent-glow);
+        }
+
+        div:not(.inhibited)>.grimoire-card.active .grimoire-title {
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .inhibited .grimoire-card {
+            filter: grayscale(1);
+            opacity: 0.5;
+            pointer-events: none;
+            transform: none;
+            box-shadow: none;
+            border-color: transparent;
+        }
+
+        /* --- Zen Mode Animation --- */
+        #os-bar,
+        #config-panel,
+        #workspace,
+        .paper,
+        .paper-toolbar,
+        .toolbar-group,
+        .toolbar-center,
+        .brand-container {
+            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-origin: center top;
+        }
+
+        body.zen-mode #os-bar {
+            margin-top: -64px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body.zen-mode #config-panel {
+            width: 0 !important;
+            padding: 0 !important;
+            margin-left: 0 !important;
+            opacity: 0;
+        }
+
+        body.zen-mode #workspace {
+            height: 100vh;
+            padding: 0;
+            z-index: 1000;
+        }
+
+        body.zen-mode .paper {
+            max-width: 850px;
+            height: 100%;
+            border-radius: 0;
+            border: none;
+            margin: 0 auto;
+            box-shadow: none;
+        }
+
+        body.zen-mode .paper-toolbar {
+            background: transparent;
+            box-shadow: none;
+            border: none;
+            top: 0;
+            pointer-events: none;
+        }
+
+        body.zen-mode .toolbar-group,
+        body.zen-mode .toolbar-center {
+            opacity: 0;
+            transform: translateY(-20px);
+            pointer-events: none;
+        }
+
+        body.zen-mode .toolbar-right {
+            opacity: 0.6;
+            pointer-events: auto;
+            margin-right: 20px;
+            margin-top: 10px;
+        }
+
+        body.zen-mode .toolbar-right:hover {
+            opacity: 1;
+        }
+
+        body.zen-mode ::-webkit-scrollbar {
+            width: 0;
+        }
+
+        /* --- Memory & Chat --- */
+        .memory-monitor {
+            padding: 10px;
+            background: rgba(155, 89, 182, 0.05);
+            border: 1px dashed var(--accent-primary);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .memory-stat {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-primary);
+        }
+
+        .memory-label {
+            font-size: 11px;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .rag-preview {
+            font-size: 11px;
+            color: var(--text-sub);
+            padding: 8px;
+            border-left: 2px solid var(--accent-primary);
+            background: rgba(0, 0, 0, 0.02);
+            margin-top: 5px;
+            display: none;
+        }
+
+        .rag-preview.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-bottom: 10px;
+            content-visibility: auto;
+            contain-intrinsic-size: 1000px;
+        }
+
+        .chat-bubble {
+            max-width: 90%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .chat-bubble.user {
+            align-self: flex-end;
+            background: var(--active-item);
+            border: 1px solid var(--accent-lavender);
+            color: var(--accent-primary);
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-bubble.ai {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-bubble.ai strong {
+            color: var(--accent-secondary);
+        }
+
+        .chat-rag-info {
+            font-size: 10px;
+            color: var(--text-sub);
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px dashed rgba(0, 0, 0, 0.1);
+            opacity: 0.8;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 6px;
+            padding-top: 10px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        #tab-chat.active {
+            display: flex !important;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        #chapter-list,
+        .snapshot-list {
+            content-visibility: auto;
+            contain-intrinsic-size: 300px;
+        }
+
+        .drag-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #fff;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .drag-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .drag-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @media print {
+            :root {
+                --bg-base: #ffffff !important;
+                --bg-paper: #ffffff !important;
+                --text-main: #000000 !important;
+                --font-serif: 'Noto Serif SC', 'Songti SC', serif !important;
+            }
+
+            #os-bar,
+            #config-panel,
+            .paper-toolbar,
+            #word-count,
+            #staging-area,
+            #ink-spirit,
+            .drag-overlay,
+            .bloom-particle,
+            .btn,
+            ::-webkit-scrollbar {
+                display: none !important;
+            }
+
+            body,
+            #app,
+            #workspace,
+            #editor-area {
+                height: auto !important;
+                width: 100% !important;
+                overflow: visible !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: white !important;
+                display: block !important;
+            }
+
+            .paper {
+                box-shadow: none !important;
+                border: none !important;
+                background: white !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background-image: none !important;
+            }
+
+            .paper::before {
+                display: none;
+            }
+
+            #editor {
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                font-size: 12pt !important;
+                line-height: 1.6 !important;
+                color: black !important;
+                text-align: justify;
+                overflow: visible !important;
+                height: auto !important;
+            }
+
+            @page {
+                margin: 2cm;
+                size: A4 portrait;
+            }
+
+            p,
+            div {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app" v-cloak>
+        <div id="os-bar" class="glass-panel">
+            <div class="bar-left">
+                <button class="btn" style="padding:4px 8px; font-size:14px; margin-right: 0;"
+                    @click="ui.sidebarOpen = !ui.sidebarOpen" :title="ui.sidebarOpen ? '收起侧栏' : '展开侧栏'">{{
+                    ui.sidebarOpen ? '◀' : '▶' }}</button>
+                <div class="state-tag" :class="{writing: ui.saveState === '✎ Writing...'}">{{ ui.saveState }}</div>
+                <div class="poetic-script">落笔生花</div>
+            </div>
+            <div class="bar-center">
+                <div class="petal"></div>
+                <div class="petal"></div>
+                <div class="petal"></div>
+                <div class="petal"></div>
+                <div class="brand-container"><span class="brand-script">Hyacinth Writer</span><span
+                        class="brand-sub">v29.9.12-ZeroGravity</span></div>
+            </div>
+            <div class="bar-right">
+                <div class="model-tag" style="border-color: rgba(162, 155, 254, 0.3);">
+                    <span
+                        style="color:var(--accent-lavender); font-weight:bold; margin-right:4px; letter-spacing:0.5px;">Model</span>
+                    <span style="color:#8481aa; margin-right:6px; font-weight:600;">:</span>
+                    <span style="color:var(--text-sub); font-weight:600; opacity:0.9;">{{ currentModelDisplay }}</span>
+                </div>
+                <div class="bar-actions">
+                    <button class="btn theme-toggle-btn" @click="toggleTheme">
+                        <svg v-if="!ui.isDark" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-main); opacity:0.8;">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" style="color:var(--accent-lavender);">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <button class="btn" @click="ui.modalSettings = true">⚙️ 设置</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="workspace">
+            <div id="config-panel" class="glass-panel" :class="{closed: !ui.sidebarOpen}">
+                <div class="panel-tabs">
+                    <div class="tab-btn" :class="{active: ui.activeTab === 'tool'}" @click="ui.activeTab = 'tool'">✨ 灵感
+                    </div>
+                    <div class="tab-btn" :class="{active: ui.activeTab === 'chat'}" @click="ui.activeTab = 'chat'">💬 咨询
+                    </div>
+                    <div class="tab-btn" :class="{active: ui.activeTab === 'grimoire'}"
+                        @click="ui.activeTab = 'grimoire'">🔮 魔法书</div>
+                    <div class="tab-btn" :class="{active: ui.activeTab === 'outline'}"
+                        @click="ui.activeTab = 'outline'">📑 章节</div>
+                    <div class="tab-btn" :class="{active: ui.activeTab === 'status'}" @click="ui.activeTab = 'status'">
+                        📊 状态</div>
+                </div>
+
+                <div id="tab-tool" class="panel-content" :class="{active: ui.activeTab === 'tool'}">
+                    <div id="active-tool-panel" :class="{active: ui.activeTool}">
+                        <div v-if="ui.activeTool"
+                            style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px dashed var(--accent-primary); padding-bottom:5px;">
+                            <span style="font-weight:bold; color:var(--accent-primary);">{{ ui.activeTool?.name
+                                }}</span><span @click="ui.activeTool = null" style="cursor:pointer;">✕</span>
+                        </div>
+                        <div v-if="ui.activeTool">
+                            <div v-for="(field, idx) in getToolFields(ui.activeTool)" :key="idx" class="form-group"
+                                style="margin-bottom:8px;">
+                                <label class="form-label">{{ field.l }}</label>
+                                <select v-if="field.t === 'sel'" v-model="toolInputs[idx]" class="input-std">
+                                    <option v-for="opt in field.o" :value="opt">{{ opt }}</option>
+                                </select>
+                                <textarea v-else-if="field.t === 'area'" v-model="toolInputs[idx]"
+                                    :placeholder="field.p" class="input-std" style="height:60px"></textarea>
+                                <input v-else v-model="toolInputs[idx]" :placeholder="field.p" class="input-std">
+                            </div>
+                            <button class="btn"
+                                style="width:100%; background:var(--accent-primary); color:#fff; margin-top:5px;"
+                                @click="applyTool">⬇️ 写入指令框</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <input type="text" class="input-std" placeholder="🔍 搜索工具/梗..." v-model="ui.toolSearch"
+                            style="padding:6px; font-size:12px; margin-bottom:5px;">
+                        <div id="tool-list">
+                            <div v-for="(cat, i) in filteredTools" :key="i" class="tool-cat" :class="{open: cat.open}">
+                                <div class="tool-cat-head" @click="cat.open = !cat.open">{{ cat.title }} <span
+                                        style="font-size:10px; opacity:0.5;">▼</span></div>
+                                <div class="tool-cat-body">
+                                    <div v-for="(item, idx) in cat.items" :key="item.name" class="tool-item"
+                                        @click="openTool(item)">
+                                        <span>{{ item.name }}</span>
+                                        <span v-if="item.f === 'custom'" class="tool-del-btn"
+                                            @click.stop="deleteTool(cat, idx)">🗑</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="forge-btn" @click="openToolBuilder">+ ⚒️ 锻造新工具</div>
+                        </div>
+                    </div>
+                    <hr style="border:0; border-top:1px dashed var(--glass-border); margin:15px 0;">
+                    <div style="margin-bottom:10px;">
+                        <label class="form-label">最终指令预览:</label>
+                        <textarea v-model="ui.promptInput" class="input-std" placeholder="在此输入指令 (或通过上方工具生成)..."
+                            style="height:80px;"></textarea>
+                    </div>
+                    <div
+                        style="background:rgba(0,0,0,0.03); padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid var(--glass-border);">
+                        <div style="margin-bottom:15px;">
+                            <div
+                                style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px;">
+                                <label>🌡️ 创作温度</label><span style="color:var(--accent-primary); font-weight:bold;">{{
+                                    ui.temp }}</span>
+                            </div>
+                            <input type="range" v-model="ui.temp" min="0.6" max="1.3" step="0.1" style="width:100%">
+                        </div>
+                        <div>
+                            <div
+                                style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px; align-items:center;">
+                                <div style="display:flex; align-items:center; gap:5px;">
+                                    <input type="checkbox" id="pacing-switch" v-model="ui.usePacing">
+                                    <label for="pacing-switch" style="cursor:pointer; font-weight:bold;">📈 剧情起搏</label>
+                                </div>
+                                <span style="color:var(--accent-primary); font-weight:bold;">{{ pacingLabel }}</span>
+                            </div>
+                            <div :class="{inhibited: !ui.usePacing}">
+                                <input type="range" v-model="ui.pacingVal" min="0" max="80" step="20"
+                                    style="width:100%">
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="!ui.showFateDeck" style="display:flex; justify-content:center; margin-bottom:15px;">
+                        <button class="btn btn-fate" data-tooltip="展开三个不同维度的剧情走向预测" @click="ui.showFateDeck = true">🚪
+                            命运分叉路口</button>
+                    </div>
+                    <div v-else class="fate-deck">
+                        <div class="fate-collapse" @click="ui.showFateDeck = false">▲ 收起命运盘</div>
+                        <div class="fate-card conflict" @click="runEngine('fate_conflict')">
+                            <div style="font-size:20px; margin-bottom:5px;">⚔️</div><strong>荆棘之路</strong><span>冲突 / 动作 /
+                                风险</span>
+                        </div>
+                        <div class="fate-card mystery" @click="runEngine('fate_mystery')">
+                            <div style="font-size:20px; margin-bottom:5px;">👁️</div><strong>迷雾之径</strong><span>悬疑 / 揭秘
+                                / 阴谋</span>
+                        </div>
+                        <div class="fate-card emotion" @click="runEngine('fate_emotion')">
+                            <div style="font-size:20px; margin-bottom:5px;">🌹</div><strong>风信子野</strong><span>情感 / 羁绊 /
+                                治愈</span>
+                        </div>
+                    </div>
+                    <button class="btn-gen" @click="runEngine('run')" :disabled="ui.isGenerating">{{ ui.isGenerating ?
+                        '生成中...' : '⚡ 唤醒灵感' }}</button>
+                </div>
+
+                <div id="tab-chat" class="panel-content" :class="{active: ui.activeTab === 'chat'}">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-box">
+                            <div v-if="ui.chatMessages.length === 0"
+                                style="text-align:center; color:var(--text-sub); font-size:12px; margin-top:20px; opacity:0.6;">
+                                <div>🔮</div><br>我是你的全知顾问。<br>不论是前文伏笔，还是设定细节，<br>随时问我。
+                            </div>
+                            <div v-for="(msg, i) in ui.chatMessages" :key="i" class="chat-bubble" :class="msg.role">
+                                <div v-html="renderMarkdown(msg.content)"></div>
+                                <div v-if="msg.ragInfo" class="chat-rag-info">🔍 引用: {{ msg.ragInfo }}</div>
+                            </div>
+                            <div v-if="ui.isChatting" class="chat-bubble ai" style="opacity:0.7;">...</div>
+                        </div>
+                        <div class="chat-input-area">
+                            <button class="btn" style="padding:0 8px; font-size:10px; color:var(--text-sub);"
+                                title="清空对话记忆" @click="clearChatHistory">🗑</button>
+                            <textarea v-model="ui.chatInput" class="input-std" style="height:50px; resize:none;"
+                                placeholder="问点什么..." @keydown.enter.prevent="sendChatMessage"></textarea>
+                            <button class="btn" style="height:50px;" @click="sendChatMessage">➤</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-grimoire" class="panel-content" :class="{active: ui.activeTab === 'grimoire'}">
+                    <div
+                        style="margin-bottom:15px; display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--glass-border); padding-bottom:15px;">
+                        <input type="checkbox" id="persona-switch" v-model="ui.usePersona"
+                            style="transform:scale(1.2);">
+                        <label for="persona-switch"
+                            style="font-weight:bold; cursor:pointer; font-size:14px; color:var(--accent-primary);">🎭
+                            启用人格挂载</label>
+                    </div>
+                    <div :class="{inhibited: !ui.usePersona}">
+                        <div class="upload-zone" @click="triggerFileSelect">
+                            <div style="font-size:24px; margin-bottom:5px;">📥</div>
+                            <div style="font-size:12px;">点击上传 .txt 作品<br>AI 自动提取四维风格</div>
+                        </div>
+                        <input type="file" ref="fileInput" style="display:none" accept=".txt"
+                            @change="handleFileUpload">
+                        <button class="btn" style="width:100%; margin-bottom:15px;" @click="createGrimoire">+
+                            手动新建人格</button>
+                        <div style="margin-bottom:10px; font-size:12px; font-weight:bold; color:var(--text-sub);">已收录的人格
+                            (点击激活):</div>
+                        <div v-for="g in project.grimoires" :key="g.id" class="grimoire-card"
+                            :class="{active: g.active}" @click="activateGrimoire(g)">
+                            <div class="grimoire-title">{{ g.name }}</div>
+                            <div class="grimoire-preview">{{ g.prompt }}</div>
+                        </div>
+                    </div>
+                    <div v-if="ui.editingGrimoire"
+                        style="border-top:1px solid var(--glass-border); padding-top:15px; margin-top:15px; animation:fadeIn 0.3s;">
+                        <div class="form-group"><label class="form-label">人格名称</label><input
+                                v-model="ui.editingGrimoire.name" class="input-std"></div>
+                        <div class="form-group"><label class="form-label">核心 Prompt</label><textarea
+                                v-model="ui.editingGrimoire.prompt" class="input-std"
+                                style="height:200px; font-size:12px; line-height:1.5;"></textarea></div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <button class="btn-danger btn" @click="deleteGrimoire">🗑 销毁人格</button>
+                            <button class="btn" @click="ui.editingGrimoire = null">收起</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-outline" class="panel-content" :class="{active: ui.activeTab === 'outline'}">
+                    <div v-if="!ui.batchMode" style="display:flex; gap:5px; margin-bottom:10px;">
+                        <button class="btn" style="flex:1" @click="addChapter(false)">+ 章节</button>
+                        <button class="btn" style="flex:1; border-style:dashed;" @click="addChapter(true)">+ 卷标</button>
+                        <button class="btn" style="width:40px; border-color:transparent;" @click="toggleBatchMode"
+                            title="批量管理">🛠️</button>
+                    </div>
+                    <div v-else
+                        style="display:flex; gap:5px; margin-bottom:10px; background:var(--active-item); padding:4px; border-radius:8px;">
+                        <button class="btn" style="flex:1; background:transparent;" @click="selectAllChapters">{{
+                            batchSelection.size === project.chapters.length ? '全不选' : '全选' }}</button>
+                        <button class="btn-danger btn" style="flex:1;" @click="batchDelete"
+                            :disabled="batchSelection.size === 0">删除 ({{ batchSelection.size }})</button>
+                        <button class="btn" style="width:40px;" @click="toggleBatchMode">✕</button>
+                    </div>
+
+                    <div id="chapter-list" style="flex:1; overflow-y:auto; margin-bottom:10px; padding-right:5px;">
+                        <div v-for="(c, i) in project.chapters" :key="i" class="chapter-item"
+                            :class="{active: i === project.currentChap, volume: c.isVolume}" :draggable="!ui.batchMode"
+                            @dragstart="!ui.batchMode && dragStart(i, $event)" @dragover.prevent
+                            @drop="!ui.batchMode && dragDrop(i, $event)"
+                            @click="ui.batchMode ? toggleChapterSelect(i) : switchChapter(i)">
+                            <div v-if="ui.batchMode" style="margin-right:10px; pointer-events:none;">
+                                <input type="checkbox" :checked="batchSelection.has(i)">
+                            </div>
+                            <template v-if="c.isVolume">
+                                <input v-model="c.title" :disabled="ui.batchMode"
+                                    style="border:none; background:transparent; width:100%; color:inherit; text-align:center;">
+                                <span v-if="!ui.batchMode" @click.stop="delChapter(i)"
+                                    style="cursor:pointer; opacity:0.6; margin-left:5px;">✕</span>
+                            </template>
+                            <template v-else>
+                                <div style="flex:1; display:flex; align-items:center;">
+                                    <span v-if="!ui.batchMode"
+                                        style="opacity:0.3; cursor:grab; margin-right:8px;">☰</span>
+                                    <input v-model="c.title" :disabled="ui.batchMode"
+                                        style="border:none; background:transparent; font-weight:bold; width:100px; color:inherit; pointer-events:none;">
+                                </div>
+                                <span v-if="!ui.batchMode" @click.stop="delChapter(i)"
+                                    style="cursor:pointer; opacity:0.6;">✕</span>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div v-show="!ui.batchMode"
+                        style="border-top:1px dashed var(--glass-border); padding-top:15px; margin-top:auto;">
+                        <input type="file" ref="bookInput" style="display:none" accept=".txt"
+                            @change="handleBookImport">
+                        <div
+                            style="background:var(--active-item); padding:10px; border-radius:8px; border:1px solid var(--accent-primary); margin-bottom:10px;">
+                            <div
+                                style="font-size:12px; font-weight:bold; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
+                                <span :style="{color: isFileLinked ? 'green' : 'var(--text-sub)'}">
+                                    {{ isFileLinked ? '🔗 已连接本地文件' : '📡 未连接硬盘' }}
+                                </span>
+                                <span v-if="isFileLinked" style="font-size:10px; opacity:0.6;">{{ fileHandle?.name
+                                    }}</span>
+                            </div>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn-gen" style="margin:0; flex:2; font-size:12px; padding:8px;"
+                                    @click="saveToDisk">
+                                    {{ isFileLinked ? '💾 同步 (Ctrl+S)' : '💾 另存到硬盘' }}
+                                </button>
+                                <button v-if="isFileLinked" class="btn"
+                                    style="flex:1; border-color:var(--glass-border);" @click="saveAsDisk"
+                                    title="另存为新文件">
+                                    🆕
+                                </button>
+                            </div>
+                            <div v-if="!isFileLinked"
+                                style="font-size:10px; color:var(--text-sub); margin-top:5px; line-height:1.2;">
+                                推荐使用。连接后，Ctrl+S 将直接覆盖本地文件，无需重复下载。
+                            </div>
+                        </div>
+                        <button class="btn"
+                            style="width:100%; margin-bottom:8px; border-color:var(--glass-border); opacity:0.8;"
+                            @click="triggerBookImport">📥 导入书籍 (TXT)</button>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn"
+                                style="flex:1; border-color:var(--accent-primary); color:var(--accent-primary);"
+                                @click="exportMerged('txt')">⬇️ TXT</button>
+                            <button class="btn"
+                                style="flex:1; border-color:var(--accent-secondary); color:var(--accent-secondary);"
+                                @click="exportMerged('md')">⬇️ MD</button>
+                            <button class="btn" style="flex:1; border-color:#5f6368; color:#5f6368;"
+                                onclick="window.print()" title="Ctrl+P">🖨️ PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-status" class="panel-content" :class="{active: ui.activeTab === 'status'}">
+                    <div class="memory-monitor">
+                        <div class="memory-stat">{{ ragStats.shardCount }}</div>
+                        <div class="memory-label">记忆碎片 (Memory Shards)</div>
+                        <div style="font-size:10px; color:var(--text-sub); margin-top:5px;">Total Indexed: {{
+                            ragStats.totalChars }} chars</div>
+                        <button class="btn" style="margin-top:8px; font-size:10px; padding:4px 8px;"
+                            @click="forceRebuildIndex">🔄 强制重建突触</button>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-title"><span>📅 今日产出</span><span style="color:var(--accent-primary)">{{
+                                currentWordCount }} / 3000</span></div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill"
+                                :style="{width: Math.min(100, (currentWordCount/3000)*100) + '%'}"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="border-color:var(--accent-lavender);">
+                        <div class="stat-title">⏳ 时光回溯 (Time Machine)</div>
+                        <div style="max-height:150px; overflow-y:auto; padding-right:5px;">
+                            <div v-if="ui.snapshots.length === 0"
+                                style="font-size:11px; opacity:0.5; text-align:center;">暂无快照记录</div>
+                            <div v-for="s in ui.snapshots" :key="s.id" class="snapshot-item">
+                                <div class="snapshot-meta"><span class="snapshot-reason">{{ s.reason }}</span><span
+                                        class="snapshot-time">{{ s.displayTime }}</span></div>
+                                <button class="btn-restore" @click="restoreSnapshot(s)">↺ 恢复</button>
+                            </div>
+                        </div>
+                        <div style="font-size:10px; color:var(--text-sub); margin-top:5px; text-align:center;">
+                            每5分钟或重大操作前自动备份 (最新50条)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">📝 灵感待办</div>
+                        <div style="display:flex; gap:5px; margin-bottom:10px;">
+                            <input v-model="ui.newTodo" class="input-std" style="padding:5px;" placeholder="新想法...">
+                            <button class="btn" style="padding:5px 10px;" @click="addTodo">+</button>
+                        </div>
+                        <div v-for="(t, i) in project.todos" :key="i" class="task-item">
+                            <span class="task-check" @click="t.done = !t.done">{{ t.done?'☑':'☐' }}</span>
+                            <span class="task-text" :class="{done: t.done}">{{ t.text }}</span>
+                            <span class="task-del" @click="project.todos.splice(i, 1)">✕</span>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="border-color:rgba(255,118,117,0.3)">
+                        <div class="stat-title" style="color:#ff7675">🕳 伏笔/未填之坑</div>
+                        <div style="display:flex; gap:5px; margin-bottom:10px;">
+                            <input v-model="ui.newHole" class="input-std" style="padding:5px;" placeholder="未解之谜...">
+                            <button class="btn" style="padding:5px 10px;" @click="addHole">+</button>
+                        </div>
+                        <div v-for="(h, i) in project.plotholes" :key="i" class="task-item">
+                            <span class="task-check" style="color:#ff7675" @click="h.done = !h.done">{{ h.done?'☑':'☐'
+                                }}</span>
+                            <span class="task-text" :class="{done: h.done}">{{ h.text }}</span>
+                            <span class="task-del" @click="project.plotholes.splice(i, 1)">✕</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:15px;">
+                        <button class="btn" style="flex:1;" @click="importJson">📥 读取存档</button>
+                        <button class="btn" style="flex:1;" @click="exportJson">📤 备份存档</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="editor-area">
+                <div class="paper" :class="{'typewriter-active': ui.typewriterMode}">
+                    <div class="paper-toolbar">
+                        <div class="toolbar-group">
+                            <button class="btn" @click="ui.modalChars = true">👥 角色</button>
+                            <button class="btn" @click="toggleInsight" style="border-style:dashed;"
+                                title="高亮文中的角色与设定">👁️ 洞察</button>
+                            <button class="btn" @click="openWriter"
+                                style="border-color:var(--accent-primary); color:var(--accent-primary);">✍️
+                                代笔/润色</button>
+                        </div>
+                        <div class="toolbar-center">
+                            <div style="position:relative; display:inline-block;" @mouseenter="ui.showBookName = true"
+                                @mouseleave="ui.showBookName = false">
+                                <button class="btn" @click="ui.modalWorld = true"
+                                    style="font-family:var(--font-serif); font-weight:bold; font-size:14px;">📖
+                                    设定全书</button>
+                                <div class="book-name-tooltip" :class="{visible: ui.showBookName}">书名：{{ project.name }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="toolbar-right">
+                            <button class="btn" @click="ui.typewriterMode = !ui.typewriterMode"
+                                :style="{borderColor: ui.typewriterMode ? 'var(--accent-primary)' : ''}"
+                                title="打字机模式: 锁定视线黄金点">📠 打字机</button>
+                            <button class="btn" @click="editorUndo">↺ 撤销</button>
+                            <button class="btn" @click="editorClear">🗑 清空</button>
+                        </div>
+                    </div>
+                    <div id="editor" contenteditable="true" @input="onEditorInput" @paste="onEditorPaste"
+                        ref="editorDiv" :style="{ lineHeight: config.appearance.lineHeight }"></div>
+                    <div id="word-count"
+                        style="position:absolute; bottom:10px; right:20px; font-size:11px; opacity:0.6;">{{
+                        currentWordCount }} 字 | 行高: {{ config.appearance.lineHeight }}</div>
+                </div>
+
+                <div id="staging-area" :class="{active: ui.stagingText}">
+                    <div
+                        style="padding:10px 20px; border-bottom:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center; background:var(--active-item);">
+                        <strong style="color:var(--accent-primary);">✨ 灵感生成区</strong>
+                        <button class="btn" style="padding:2px 6px;" @click="ui.stagingText = ''">✕</button>
+                    </div>
+                    <div v-if="ui.lastRagContext" class="rag-preview active" style="margin: 0 20px 10px;">
+                        <strong>🧠 神经网络回响 (Memory Triggered):</strong><br>
+                        {{ ui.lastRagContext }}...
+                    </div>
+                    <div id="staging-text" v-html="renderMarkdown(ui.stagingText)"></div>
+                    <div
+                        style="padding:10px 20px; border-top:1px solid var(--glass-border); display:flex; justify-content:flex-end; gap:10px;">
+                        <button class="btn-gen" style="width:auto; margin:0; padding:8px 20px;"
+                            @click="acceptStaging">采纳</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ink-spirit" :class="{visible: ui.inkVisible, expanded: ui.inkExpanded}"
+            :style="{top: ui.inkPos.y + 'px', left: ui.inkPos.x + 'px'}">
+            <div class="ink-trigger" @mousedown.prevent="toggleInkMenu">✒️</div>
+            <div class="ink-menu">
+                <button class="ink-btn" @mousedown.prevent="runInkMagic('polish')">✨ 润色</button>
+                <button class="ink-btn" @mousedown.prevent="runInkMagic('expand')">🌊 扩写</button>
+                <button class="ink-btn" @mousedown.prevent="runInkMagic('continue')">⏩ 续写</button>
+                <div class="ink-input-wrapper">
+                    <input v-model="ui.inkInput" class="ink-input" placeholder="输入指令..."
+                        @keydown.enter.prevent="runInkMagic('custom')">
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" :class="{active: ui.modalSettings}">
+            <div class="modal-box">
+                <div class="settings-header">
+                    <div class="settings-tab" :class="{active: ui.settingsView === 'model'}"
+                        @click="ui.settingsView = 'model'">🤖 模型</div>
+                    <div class="settings-tab" :class="{active: ui.settingsView === 'appearance'}"
+                        @click="ui.settingsView = 'appearance'">🎨 外观</div>
+                    <div class="settings-tab tab-close" @click="ui.modalSettings = false">✕</div>
+                </div>
+                <div class="settings-body">
+                    <div v-if="ui.settingsView === 'model'">
+                        <div
+                            style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--glass-border); padding-bottom:10px;">
+                            <button class="btn" :class="{active: config.activeProvider === 'deepseek'}"
+                                @click="config.activeProvider = 'deepseek'" style="flex:1; justify-content:center;">🐋
+                                Silicon</button>
+                            <button class="btn" :class="{active: config.activeProvider === 'aihubmix'}"
+                                @click="config.activeProvider = 'aihubmix'" style="flex:1; justify-content:center;">🌌
+                                Mix</button>
+                            <!-- [新增] 自定义按钮 -->
+                            <button class="btn" :class="{active: config.activeProvider === 'custom'}"
+                                @click="config.activeProvider = 'custom'" style="flex:1; justify-content:center;">⚙️
+                                Custom</button>
+                        </div>
+
+                        <!-- DeepSeek 面板 (保持不变) -->
+                        <div v-if="config.activeProvider === 'deepseek'">
+                            <div class="form-group"><label class="form-label">API Key</label><input type="password"
+                                    v-model="config.keys.deepseek" class="input-std"></div>
+                            <div class="form-group"><label class="form-label">预设模型</label>
+                                <select v-model="config.models.deepseek" class="input-std">
+                                    <option value="deepseek-ai/DeepSeek-V3">DeepSeek V3 (🔮 推荐)</option>
+                                    <option value="deepseek-ai/DeepSeek-R1">DeepSeek R1 (强推理)</option>
+                                    <option value="Qwen/Qwen2.5-72B-Instruct">Qwen 2.5 72B (通义千问)</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label class="form-label" style="color:var(--accent-primary)">⚡
+                                    自定义模型 ID</label><input v-model="config.customModels.deepseek" class="input-std"
+                                    placeholder="覆盖上方选项..."></div>
+                            <button class="btn" style="width:100%" @click="checkQuota('deepseek')">🔍 检查连通性</button>
+                        </div>
+
+                        <!-- AIHubMix 面板 (保持不变) -->
+                        <div v-if="config.activeProvider === 'aihubmix'">
+                            <div class="form-group"><label class="form-label">API Key</label><input type="password"
+                                    v-model="config.keys.aihubmix" class="input-std"></div>
+                            <div class="form-group"><label class="form-label">预设模型</label>
+                                <select v-model="config.models.aihubmix" class="input-std">
+                                    <optgroup label="Grok">
+                                        <option value="grok-4">Grok 4</option>
+                                    </optgroup>
+                                    <optgroup label="Gemini">
+                                        <option value="gemini-2.5-pro">Gemini 2.5pro</option>
+                                        <option value="gemini-2.5-flash">Gemini 2.5flash</option>
+                                    </optgroup>
+                                    <optgroup label="Claude">
+                                        <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="form-group"><label class="form-label" style="color:var(--accent-primary)">⚡
+                                    自定义模型 ID</label><input v-model="config.customModels.aihubmix" class="input-std"
+                                    placeholder="覆盖上方选项..."></div>
+                            <button class="btn" style="width:100%" @click="checkQuota('aihubmix')">🔍 检查连通性</button>
+                        </div>
+
+                        <!-- [新增] Custom 自定义面板 -->
+                        <div v-if="config.activeProvider === 'custom'">
+                            <div class="form-group">
+                                <label class="form-label">🌐 接口地址 (Base URL)</label>
+                                <input v-model="config.urls.custom" class="input-std"
+                                    placeholder="例如: https://api.openai.com/v1/chat/completions">
+                                <div style="font-size:10px; color:var(--text-sub); margin-top:4px;">提示：必须包含完整路径 (通常以
+                                    /chat/completions 结尾)</div>
+                            </div>
+                            <div class="form-group"><label class="form-label">🔑 API Key</label><input type="password"
+                                    v-model="config.keys.custom" class="input-std" placeholder="sk-..."></div>
+                            <div class="form-group"><label class="form-label">🤖 模型 ID</label><input
+                                    v-model="config.customModels.custom" class="input-std"
+                                    placeholder="例如: gpt-4o, deepseek-chat..."></div>
+
+                            <div
+                                style="background:rgba(0,0,0,0.03); padding:8px; border-radius:6px; margin-bottom:10px; font-size:11px; color:var(--text-sub);">
+                                <strong>本地运行 (Ollama) 指南:</strong><br>
+                                1. URL 填: <code>http://localhost:11434/v1/chat/completions</code><br>
+                                2. Key 随便填 (例如 "ollama")<br>
+                                3. 模型填: <code>llama3</code> 或 <code>qwen2</code>
+                            </div>
+                            <button class="btn" style="width:100%" @click="checkQuota('custom')">🔍 检查连通性</button>
+                        </div>
+
+                        <div style="margin-top:10px; font-size:12px; height:20px;" v-html="ui.quotaMsg"></div>
+                    </div>
+                    <div v-if="ui.settingsView === 'appearance'">
+                        <div class="form-group">
+                            <label class="form-label">📏 正文行高 (Line Height): <span
+                                    style="color:var(--accent-primary)">{{ config.appearance.lineHeight
+                                    }}</span></label>
+                            <input type="range" v-model="config.appearance.lineHeight" min="1.4" max="2.4" step="0.1"
+                                style="width:100%">
+                            <div
+                                style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-sub); margin-top:5px;">
+                                <span>紧凑 (1.4)</span><span>标准 (1.8)</span><span>疏朗 (2.4)</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">🧱 排版密度 (Injection Density)</label>
+                            <div style="display:flex; gap:10px; margin-top:10px;">
+                                <button class="btn" :class="{active: config.appearance.density === 'tight'}"
+                                    @click="config.appearance.density = 'tight'"
+                                    style="flex:1; padding:15px; text-align:left;">
+                                    <strong>📖 紧凑型</strong>
+                                    <div style="font-size:11px; opacity:0.7; margin-top:5px;">AI
+                                        采纳内容将去除空行。<br>适合实体书/传统排版风格。</div>
+                                </button>
+                                <button class="btn" :class="{active: config.appearance.density === 'loose'}"
+                                    @click="config.appearance.density = 'loose'"
+                                    style="flex:1; padding:15px; text-align:left;">
+                                    <strong>📱 舒适型</strong>
+                                    <div style="font-size:11px; opacity:0.7; margin-top:5px;">AI
+                                        采纳内容保留段间空行。<br>适合网文/屏幕阅读风格。</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-footer">
+                    <button class="btn-danger btn" @click="resetAll">🗑️ 恢复出厂</button>
+                    <button class="btn-gen btn-ghost" style="width:auto; margin:0;"
+                        @click="ui.modalSettings = false">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" :class="{active: ui.modalChars}">
+            <div class="modal-box" style="height:600px;">
+                <div class="settings-header">
+                    <div class="settings-tab active">👥 角色卡</div>
+                    <div class="settings-tab tab-close" @click="ui.modalChars = false">✕</div>
+                </div>
+                <div class="settings-body" style="flex-direction:column;">
+                    <div style="flex:1; overflow-y:auto; margin-bottom:15px;">
+                        <div v-for="(char, i) in project.lorebook" :key="i" class="lore-card">
+                            <div><strong style="color:var(--accent-primary)">{{ char.name }}</strong>
+                                <div style="font-size:12px; opacity:0.8; margin-top:4px;">{{ char.desc }}</div>
+                            </div>
+                            <button class="btn-danger btn" style="padding:4px 8px;"
+                                @click="project.lorebook.splice(i, 1)">✕</button>
+                        </div>
+                    </div>
+                    <div style="border-top:1px solid var(--glass-border); padding-top:15px;">
+                        <input v-model="ui.newChar.name" class="input-std" placeholder="角色名" style="margin-bottom:8px;">
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+                            <textarea v-model="ui.newChar.role" class="input-std" placeholder="🏷️ 身份"
+                                style="height:60px"></textarea>
+                            <textarea v-model="ui.newChar.visual" class="input-std" placeholder="👁️ 外貌"
+                                style="height:60px"></textarea>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+                            <textarea v-model="ui.newChar.psyche" class="input-std" placeholder="🧠 性格"
+                                style="height:60px"></textarea>
+                            <textarea v-model="ui.newChar.voice" class="input-std" placeholder="🗣️ 口吻"
+                                style="height:60px"></textarea>
+                        </div>
+                        <textarea v-model="ui.newChar.goal" class="input-std" placeholder="🔥 欲望"
+                            style="height:50px; margin-bottom:8px;"></textarea>
+                        <button class="btn-gen" style="margin:0;" @click="addChar">注入灵魂</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" :class="{active: ui.modalWorld}">
+            <div class="modal-box" style="width:700px; height:800px;">
+                <div class="settings-header">
+                    <div class="settings-tab" :class="{active: ui.worldTab === 'macro'}" @click="ui.worldTab = 'macro'">
+                        🌍 宏观架构</div>
+                    <div class="settings-tab" :class="{active: ui.worldTab === 'codex'}" @click="ui.worldTab = 'codex'">
+                        📘 万象词典</div>
+                    <div class="settings-tab tab-close" @click="ui.modalWorld = false">✕</div>
+                </div>
+                <div class="settings-body">
+                    <div v-if="ui.worldTab === 'macro'">
+                        <div class="form-group"><label class="form-label">书名</label><input v-model="project.name"
+                                class="input-std"></div>
+                        <div class="form-group"><label class="form-label">主角</label><input v-model="project.protagonist"
+                                class="input-std"></div>
+                        <div class="form-group"><label class="form-label">资源</label><input v-model="project.resources"
+                                class="input-std"></div>
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                            <label class="form-label">🌍 世界基调</label>
+                            <button class="btn" style="padding:2px 6px; font-size:10px;" @click="autoGenWorld">✨ AI
+                                补全</button>
+                        </div>
+                        <textarea v-model="project.context" class="input-std" style="height:80px; margin-bottom:10px;"
+                            placeholder="例如：赛博朋克与克苏鲁结合的修仙世界..."></textarea>
+                        <div class="form-group"><label class="form-label">⚡ 力量体系</label><textarea
+                                v-model="project.powerSystem" class="input-std" style="height:80px;"
+                                placeholder="例如：练气-筑基-金丹..."></textarea></div>
+                        <div class="form-group"><label class="form-label">🏰 势力/地理</label><textarea
+                                v-model="project.factions" class="input-std" style="height:80px;"
+                                placeholder="例如：三大宗门、朝廷..."></textarea></div>
+                    </div>
+                    <div v-else style="display:flex; flex-direction:column; height:100%;">
+                        <div
+                            style="flex:1; overflow-y:auto; margin-bottom:15px; border:1px solid var(--glass-border); padding:10px;">
+                            <div v-for="(item, i) in project.codex" :key="i" class="lore-card">
+                                <div class="lore-header"><strong style="color:var(--accent-secondary)">{{ item.name
+                                        }}</strong>
+                                    <button class="btn-danger btn" style="padding:2px 6px; font-size:10px;"
+                                        @click="project.codex.splice(i, 1)">✕</button>
+                                </div>
+                                <div class="lore-desc">{{ item.desc }}</div>
+                            </div>
+                        </div>
+                        <div style="border-top:1px solid var(--glass-border); padding-top:15px;">
+                            <input v-model="ui.newCodex.name" class="input-std" placeholder="词条名"
+                                style="margin-bottom:5px;">
+                            <textarea v-model="ui.newCodex.desc" class="input-std" placeholder="详细描述..."
+                                style="height:60px; margin-bottom:5px;"></textarea>
+                            <button class="btn-gen" style="margin:0;" @click="addCodex">+ 添加词条</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" :class="{active: ui.modalWriter}">
+            <div class="modal-box" style="width:800px; height:800px;">
+                <div class="settings-header">
+                    <div class="settings-tab active">✍️ 智能代笔</div>
+                    <div class="settings-tab tab-close" @click="ui.modalWriter = false">✕</div>
+                </div>
+                <div class="settings-body" style="padding:0; flex-direction:column;">
+                    <div
+                        style="padding:20px; border-bottom:1px solid var(--glass-border); background:rgba(0,0,0,0.02);">
+                        <textarea v-model="ui.writerInput" class="input-std"
+                            style="height:120px; font-family:var(--font-ui); line-height:1.6;"
+                            placeholder="在此输入剧情梗概（用于扩写），或直接选中正文中的文字粘贴在本框中(用于润色/续写)"></textarea>
+                        <div style="display:flex; gap:12px; margin-top:15px;">
+                            <button class="btn"
+                                style="flex:1; height:40px; display:flex; align-items:center; justify-content:center; gap:6px;"
+                                @click="runWriter('expand')"><span>✨</span> 扩写</button>
+                            <button class="btn"
+                                style="flex:1; height:40px; display:flex; align-items:center; justify-content:center; gap:6px;"
+                                @click="runWriter('polish')"><span>💅</span> 润色</button>
+                            <button class="btn"
+                                style="flex:1; height:40px; display:flex; align-items:center; justify-content:center; gap:6px;"
+                                @click="runWriter('continue')"><span>⏩</span> 续写</button>
+                        </div>
+                    </div>
+                    <div style="flex:1; padding:25px; overflow-y:auto; background:var(--bg-base);">
+                        <div v-if="!ui.writerOutput"
+                            style="height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-sub); opacity:0.3; flex-direction:column;">
+                            <div style="font-size:40px; margin-bottom:10px;">✒️</div>
+                            <div style="font-size:13px;">AI 正在等待墨水...</div>
+                        </div>
+                        <div v-else v-html="renderMarkdown(ui.writerOutput)" style="line-height:1.8;"></div>
+                    </div>
+                </div>
+                <div class="settings-footer">
+                    <button class="btn-gen" style="width:auto; margin:0;" @click="applyWriter">插入正文</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" :class="{active: ui.modalCustomTool}">
+            <div class="modal-box" style="width:600px; max-height:85vh;">
+                <div class="settings-header">
+                    <div class="settings-tab active">🛠️ 锻造工坊</div>
+                    <div class="settings-tab tab-close" @click="ui.modalCustomTool = false">✕</div>
+                </div>
+                <div class="settings-body" style="display:flex; flex-direction:column; gap:15px;">
+                    <div style="display:flex; gap:10px;">
+                        <div class="form-group" style="flex:1;"><label class="form-label">🛠️ 工具名称</label><input
+                                v-model="toolBuilder.name" class="input-std" placeholder="例如: 战斗场景生成器"></div>
+                        <div class="form-group" style="width:120px;"><label class="form-label">📂 归属分类</label>
+                            <select v-model="toolBuilder.catTitle" class="input-std">
+                                <option v-for="cat in allTools" :value="cat.title">{{ cat.title }}</option>
+                                <option v-if="!allTools.some(c => c.title === '我的工具')" value="我的工具">我的工具</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div
+                        style="border:1px solid var(--glass-border); padding:10px; border-radius:8px; background:rgba(0,0,0,0.02);">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <label class="form-label" style="color:var(--accent-primary);">🏗️ 1. 定义参数</label>
+                            <button class="btn" style="padding:2px 8px; font-size:10px;" @click="addBuilderField">+
+                                加一项</button>
+                        </div>
+                        <div
+                            style="display:flex; gap:5px; margin-bottom:5px; font-size:10px; color:var(--text-sub); padding:0 5px;">
+                            <div style="flex:1;">参数名</div>
+                            <div style="width:70px;">类型</div>
+                            <div style="flex:1;">提示语</div>
+                            <div style="width:25px;"></div>
+                        </div>
+                        <div style="max-height:200px; overflow-y:auto; padding-right:5px;">
+                            <div v-for="(f, i) in toolBuilder.fields" :key="i"
+                                style="display:flex; gap:5px; margin-bottom:8px; align-items:center;">
+                                <div style="flex:1; position:relative;"><input v-model="f.l" class="input-std"
+                                        placeholder="如: 武器" style="padding-right:5px;"></div>
+                                <select v-model="f.t" class="input-std" style="width:70px;">
+                                    <option value="input">单行</option>
+                                    <option value="area">多行</option>
+                                </select>
+                                <input v-model="f.p" class="input-std" placeholder="如: 请输入武器名称..." style="flex:1;">
+                                <button class="btn-danger btn" style="padding:4px 8px;"
+                                    @click="toolBuilder.fields.splice(i, 1)">✕</button>
+                            </div>
+                            <div v-if="toolBuilder.fields.length === 0"
+                                style="text-align:center; font-size:12px; color:var(--text-sub); padding:10px;">👇
+                                点击右上角添加参数</div>
+                        </div>
+                    </div>
+                    <div class="form-group"><label class="form-label" style="color:var(--accent-primary);">📜 2. 编写
+                            Prompt 模板</label>
+                        <div
+                            style="font-size:11px; color:var(--text-sub); margin-bottom:8px; background:var(--active-item); padding:8px; border-radius:6px; line-height:1.6;">
+                            <strong>使用说明：</strong><br>请在下方写Prompt。插入参数请用双大括号。<br>可用标签:
+                            <span v-for="f in toolBuilder.fields" v-show="f.l"
+                                style="margin-right:5px; color:var(--accent-primary); font-weight:bold; cursor:pointer; border-bottom:1px dashed;"
+                                @click="toolBuilder.template += '{{'+f.l+'}}'" v-text="'{{' + f.l + '}}'"></span>
+                        </div>
+                        <textarea v-model="toolBuilder.template" class="input-std"
+                            style="height:120px; font-family:monospace;"
+                            placeholder="例如: 请描写主角手持 {{武器}} 进行战斗..."></textarea>
+                    </div>
+                </div>
+                <div class="settings-footer">
+                    <div style="font-size:12px; color:var(--text-sub);">未保存</div>
+                    <button class="btn-gen" style="width:auto; margin:0; padding:8px 25px;"
+                        @click="saveToolToDB">锻造完成</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" :class="{active: ui.modalImport}">
+            <div class="modal-box" style="width:500px;">
+                <div class="settings-header">
+                    <div class="settings-tab active">📥 导入预览</div>
+                    <div class="settings-tab tab-close" @click="ui.modalImport = false">✕</div>
+                </div>
+
+                <div class="settings-body" v-if="ui.importCandidate">
+                    <div style="text-align:center; margin-bottom:15px;">
+                        <div style="font-size:40px;">📚</div>
+                        <div style="font-weight:bold; font-size:16px; margin-top:5px;">{{ ui.importCandidate.name }}
+                        </div>
+                        <div style="color:var(--text-sub); font-size:12px;">识别到 {{ ui.importCandidate.count }} 个章节</div>
+                    </div>
+
+                    <div
+                        style="background:rgba(0,0,0,0.03); border:1px solid var(--glass-border); border-radius:8px; padding:10px;">
+                        <div style="font-size:11px; font-weight:bold; color:var(--text-sub); margin-bottom:5px;">章节列表预览
+                            (前5章):</div>
+                        <div v-for="(previewChap, idx) in ui.importCandidate.preview" :key="idx"
+                            style="font-size:12px; padding:4px 0; border-bottom:1px dashed rgba(0,0,0,0.05);">
+                            {{ previewChap.title }} <span style="opacity:0.5; font-size:10px;">({{
+                                previewChap.content.length }} 字)</span>
+                        </div>
+                        <div v-if="ui.importCandidate.count > 5"
+                            style="text-align:center; font-size:10px; color:var(--text-sub); margin-top:5px;">... 以及更多
+                        </div>
+                    </div>
+
+                    <div style="font-size:11px; color:#ff7675; margin-top:15px; text-align:center;">
+                        ⚠️ 警告：确认导入将<b>覆盖</b>当前所有章节内容。<br>系统将自动为您创建一个备份快照。
+                    </div>
+                </div>
+
+                <div class="settings-footer">
+                    <button class="btn" @click="ui.modalImport = false">取消</button>
+                    <button class="btn-gen" style="width:auto; margin:0;" @click="confirmImport">确认覆盖并导入</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="global-tooltip"></div>
+
+        <div class="drag-overlay" :class="{active: ui.isDragging}" @dragleave.prevent.stop="ui.isDragging = false"
+            @dragover.prevent.stop @drop.prevent.stop="onFileDrop">
+            <div class="drag-icon">📂</div>
+            <div style="font-size:24px; font-weight:bold; margin-bottom:10px;">释放以导入书籍</div>
+            <div style="opacity:0.7;">支持 .txt 格式 | 智能识别章节</div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * --- Region: Static Assets & Configuration ---
+         * 定义预设工具、表单结构和节奏配置
+         */
+        const Assets = {
+            forms: {
+                textOp: [{ l: "原文", t: "area", p: "(留空读取选区)" }, { l: "处理要求", p: "如：改写得更热血" }],
+                free: [{ l: "指令", t: "area", p: "请输入..." }],
+                scene: [{ l: "地点", p: "古庙" }, { l: "氛围", t: "sel", o: ["恐怖", "祥和", "热血", "暧昧"] }, { l: "元素", p: "雨、灯光" }],
+                chat: [{ l: "角色A" }, { l: "角色B" }, { l: "语气", t: "sel", o: ["争吵", "暧昧", "谈判", "审讯"] }, { l: "话题" }],
+                combat: [{ l: "我方" }, { l: "敌方" }, { l: "招式" }, { l: "战况", t: "sel", o: ["险胜", "碾压", "两败俱伤"] }],
+                erotic: [{ l: "角色" }, { l: "场景" }, { l: "互动", t: "sel", o: ["纯爱", "调教", "救赎", "NTR"] }, { l: "感官细节" }],
+                nameGen: [{ l: "风格", t: "sel", o: ["古风", "西幻", "赛博"] }, { l: "数量", p: "5个" }],
+                sys: [{ l: "系统类型", p: "签到/抽奖" }, { l: "获得奖励" }, { l: "副作用" }],
+                sect: [{ l: "宗门名" }, { l: "层级结构" }, { l: "核心功法" }],
+                face: [{ l: "反派身份" }, { l: "挑衅方式" }, { l: "打脸方式" }],
+                biz: [{ l: "行业" }, { l: "对手手段" }, { l: "反击策略" }],
+                cthulhu: [{ l: "怪诞现象" }, { l: "不可名状之物" }, { l: "SAN值影响" }],
+                infinite: [{ l: "副本类型" }, { l: "通关条件" }, { l: "抹杀规则" }]
+            },
+            toolsData: [
+                { title: "🔮 核心指令", items: [{ name: "自由写作", f: "free" }, { name: "扩写润色", f: "textOp" }, { name: "环境描写", f: "scene" }, { name: "人物对话", f: "chat" }, { name: "打斗描写", f: "combat" }, { name: "心理博弈", f: "free" }] },
+                { title: "🌶️ 情感/张力", items: [{ name: "张力场景", f: "erotic" }, { name: "修罗场", f: "chat" }, { name: "深情告白", f: "chat" }, { name: "误会分手", f: "chat" }, { name: "病娇独白", f: "free" }] },
+                { title: "🏔️ 玄幻/仙侠", items: [{ name: "功法设定", f: "free" }, { name: "天材地宝", f: "free" }, { name: "宗门架构", f: "sect" }, { name: "拍卖会", f: "free" }, { name: "杀人夺宝", f: "combat" }, { name: "境界突破", f: "free" }] },
+                { title: "🏙️ 都市/爽文", items: [{ name: "系统金手指", f: "sys" }, { name: "富二代打脸", f: "face" }, { name: "商战计谋", f: "biz" }, { name: "神医治病", f: "free" }, { name: "直播弹幕", f: "free" }, { name: "文抄公", f: "free" }] },
+                { title: "🚀 科幻/无限", items: [{ name: "黑科技", f: "free" }, { name: "赛博场景", f: "scene" }, { name: "无限流副本", f: "infinite" }, { name: "克苏鲁", f: "cthulhu" }, { name: "规则怪谈", f: "free" }] },
+                { title: "🌌 古代/历史", items: [{ name: "宫斗陷害", f: "free" }, { name: "古代菜肴", f: "free" }, { name: "服饰妆容", f: "free" }, { name: "权谋推演", f: "free" }] },
+                { title: "🖋️ 辅助工具", items: [{ name: "起名助手", f: "nameGen" }, { name: "大纲生成", f: "free" }, { name: "外语译名", f: "nameGen" }] }
+            ]
+        };
+
+        const PacingConfig = {
+            0: { l: "☕ 日常铺垫", p: "【当前剧情模式：舒缓铺垫】请放慢叙事节奏，专注于环境渲染与人物心理的细腻刻画..." },
+            20: { l: "🔍 剧情推进", p: "【当前剧情模式：剧情推进】请保持中等语速，通过人物对话和信息交互来推动情节发展..." },
+            40: { l: "⚔️ 矛盾冲突", p: "【当前剧情模式：矛盾爆发】剧情进入紧张状态..." },
+            60: { l: "🔥 高潮时刻", p: "【当前剧情模式：高潮时刻】现在是全篇的最强音..." },
+            80: { l: "🩸 绝望/终局", p: "【当前剧情模式：极限终局】请采用极度情绪化、甚至略带疯狂或悲壮的笔触..." }
+        };
+
+        /**
+         * --- Region: Infrastructure (DB & RAG) ---
+         * IndexedDB 封装与 RAG 搜索引擎
+         */
+        const SimpleDB = {
+            DB_NAME: 'HyacinthDB', STORE_NAME: 'kv_store', SNAP_STORE: 'snapshots', db: null,
+            async init() {
+                return new Promise((resolve, reject) => {
+                    const req = indexedDB.open(this.DB_NAME, 3);
+                    req.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains(this.STORE_NAME)) db.createObjectStore(this.STORE_NAME);
+                        if (!db.objectStoreNames.contains(this.SNAP_STORE)) {
+                            const st = db.createObjectStore(this.SNAP_STORE, { keyPath: 'id' });
+                            st.createIndex('chapterIndex', 'chapterIndex', { unique: false });
+                        }
+                    };
+                    req.onsuccess = (e) => { this.db = e.target.result; resolve(); };
+                    req.onerror = (e) => reject(e);
+                });
+            },
+            async get(key) { return new Promise((resolve) => { const tx = this.db.transaction(this.STORE_NAME, 'readonly'); const req = tx.objectStore(this.STORE_NAME).get(key); req.onsuccess = () => resolve(req.result); req.onerror = () => resolve(null); }); },
+            async set(key, val) { return new Promise((resolve) => { const tx = this.db.transaction(this.STORE_NAME, 'readwrite'); const req = tx.objectStore(this.STORE_NAME).put(JSON.parse(JSON.stringify(val)), key); req.onsuccess = () => resolve(); }); },
+            async clear() { return new Promise((resolve) => { const tx = this.db.transaction(this.STORE_NAME, 'readwrite'); tx.objectStore(this.STORE_NAME).clear().onsuccess = () => resolve(); }); },
+            async saveSnapshot(snap) {
+                return new Promise((resolve) => {
+                    const tx = this.db.transaction(this.SNAP_STORE, 'readwrite');
+                    tx.objectStore(this.SNAP_STORE).put(snap);
+                    tx.oncomplete = () => { this.garbageCollect(snap.chapterIndex); resolve(); };
+                });
+            },
+            async garbageCollect(chapIdx) {
+                const tx = this.db.transaction(this.SNAP_STORE, 'readwrite');
+                const store = tx.objectStore(this.SNAP_STORE);
+                const idx = store.index('chapterIndex');
+                const req = idx.getAll(IDBKeyRange.only(chapIdx));
+                req.onsuccess = () => {
+                    const allSnaps = req.result.sort((a, b) => b.id - a.id);
+                    if (allSnaps.length > 50) {
+                        const toDelete = allSnaps.slice(50);
+                        toDelete.forEach(snap => store.delete(snap.id));
+                    }
+                };
+            },
+            async getSnapshots(chapIdx) {
+                return new Promise((resolve) => {
+                    const tx = this.db.transaction(this.SNAP_STORE, 'readonly');
+                    const idx = tx.objectStore(this.SNAP_STORE).index('chapterIndex');
+                    const req = idx.getAll(IDBKeyRange.only(chapIdx));
+                    req.onsuccess = () => { resolve(req.result.sort((a, b) => b.id - a.id).slice(0, 50)); };
+                });
+            }
+        };
+
+        const Archivist = {
+            shards: [],
+            stopWords: new Set(['的', '了', '是', '在', '我', '有', '和', '就', '不', '人', '都', '一', '一个', '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有', '看', '好', '自己', '这']),
+            tokenize(text) {
+                if (!text) return [];
+                const clean = text.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
+                const tokens = [];
+                for (let i = 0; i < clean.length - 1; i++) {
+                    const term = clean.slice(i, i + 2);
+                    if (!this.stopWords.has(term)) tokens.push(term);
+                }
+                return tokens;
+            },
+            async build(project) {
+                this.shards = [];
+                if (!project) return;
+                const processChunk = async (items, type, weight) => {
+                    return new Promise(resolve => {
+                        setTimeout(() => {
+                            items.forEach((item) => {
+                                let content = item;
+                                if (type === 'lore') content = `【角色档案】${item.name}: ${item.desc}`;
+                                else if (type === 'codex') content = `【世界设定】${item.name}: ${item.desc}`;
+                                this.shards.push({ id: `${type}_${Math.random().toString(36).substr(2, 5)}`, text: content, tokens: this.tokenize(content), type: type, weight: weight });
+                            });
+                            resolve();
+                        }, 0);
+                    });
+                };
+                if (project.lorebook) await processChunk(project.lorebook, 'lore', 2.0);
+                if (project.codex) await processChunk(project.codex, 'codex', 1.5);
+                if (project.chapters) {
+                    for (let i = 0; i < project.chapters.length; i++) {
+                        const chap = project.chapters[i];
+                        if (i === project.currentChap || !chap.content) continue;
+                        const chunks = chap.content.match(/[\s\S]{1,300}/g) || [];
+                        await processChunk(chunks, 'story', 1.0);
+                    }
+                }
+            },
+            search(query, limit = 3) {
+                const queryTokens = this.tokenize(query);
+                if (queryTokens.length === 0 || this.shards.length === 0) return [];
+                const scores = this.shards.map(shard => {
+                    let score = 0;
+                    queryTokens.forEach(qt => { if (shard.tokens.includes(qt)) score++; });
+                    return { shard, score: score * shard.weight };
+                });
+                return scores.filter(s => s.score > 0.5).sort((a, b) => b.score - a.score).slice(0, limit).map(s => s.shard.text);
+            }
+        };
+
+        /**
+         * --- Region: Vue Logic ---
+         * 核心 Vue 组件逻辑
+         */
+        const { createApp, reactive, ref, computed, onMounted, watch, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                // 1. 状态定义
+                const config = reactive({
+                    activeProvider: 'deepseek',
+                    // 新增 custom 字段
+                    keys: { deepseek: "", aihubmix: "", custom: "" },
+                    // 新增 custom 默认模型
+                    models: { deepseek: "deepseek-ai/DeepSeek-V3", aihubmix: "grok-4", custom: "gpt-3.5-turbo" },
+                    customModels: { deepseek: "", aihubmix: "", custom: "" },
+                    // [NEW] 新增 API 地址配置 (Base URL)
+                    urls: {
+                        deepseek: "https://api.siliconflow.cn/v1/chat/completions",
+                        aihubmix: "https://api.aihubmix.com/v1/chat/completions",
+                        custom: "https://api.openai.com/v1/chat/completions" // 默认 OpenAI 官方地址
+                    },
+                    appearance: { lineHeight: 1.8, density: 'loose' }
+                });
+
+                const project = reactive({ name: "未命名", protagonist: "", context: "", powerSystem: "", factions: "", codex: [], chapters: [{ title: "第一章", content: "" }], currentChap: 0, grimoires: [{ id: 'default', name: "默认人格", prompt: "你是一位专业小说家...", active: true }], lorebook: [], todos: [], plotholes: [] });
+
+                const ui = reactive({
+                    activeTab: 'tool', zenMode: false, toolSearch: '', activeTool: null, promptInput: '', temp: 1.0, usePacing: true, pacingVal: 0, isGenerating: false, stagingText: '', usePersona: true, editingGrimoire: null, modalSettings: false, modalChars: false, modalWorld: false, modalWriter: false, modalCustomTool: false, sidebarOpen: true, typewriterMode: false, quotaMsg: '', worldTab: 'macro', saveState: 'Ready', newChar: { name: '', role: '', visual: '', psyche: '', voice: '', goal: '' }, newCodex: { name: '', desc: '' }, newTodo: '', newHole: '', writerInput: '', writerOutput: '', dragSrcIndex: null, isDark: false, showFateDeck: false, tempContentBuffer: '', settingsView: 'model', showBookName: false, snapshots: [],
+                    inkVisible: false, inkExpanded: false, inkPos: { x: 0, y: 0 }, inkInput: '', inkRange: null, lastRagContext: '',
+                    chatInput: '', chatMessages: [], isChatting: false, modalImport: false, batchMode: false, importCandidate: null, isDragging: false
+                });
+
+                const ragStats = reactive({ shardCount: 0, totalChars: 0 });
+                const toolBuilder = reactive({ name: "", catTitle: "我的工具", fields: [], template: "" });
+                const toolInputs = ref({});
+                const editorDiv = ref(null);
+                const fileInput = ref(null);
+                const allTools = ref([]);
+                const bookInput = ref(null);
+                const batchSelection = reactive(new Set());
+
+                // 2. 内部变量
+                let lastRange = null;
+                let lastSnapshotTime = 0;
+                let lastSnapshotLength = 0;
+                let inkDebounceTimer = null;
+                let bloomCounter = 0;
+
+                const fileHandle = ref(null); // 存储文件句柄
+                const isFileLinked = computed(() => !!fileHandle.value); // 状态指示器
+
+                // 通用文本生成器 (复用原 exportMerged 的逻辑，但只返回文本)
+                const generateFullText = (isMd = false) => {
+                    let text = "";
+                    const totalWords = project.chapters.reduce((acc, c) => acc + (c.content ? c.content.length : 0), 0);
+                    if (isMd) {
+                        text += `# ${project.name || '未命名作品'}\n\n`;
+                        text += `> 作者：${project.protagonist || '佚名'} | 字数：${totalWords} | 最后保存：${new Date().toLocaleString()}\n\n---\n\n`;
+                    }
+                    project.chapters.forEach(c => {
+                        const content = c.content ? c.content.trim() : "";
+                        if (c.isVolume) text += isMd ? `\n\n## ${c.title}\n\n` : `\n\n=== ${c.title} ===\n\n`;
+                        else text += isMd ? `\n\n### ${c.title}\n\n${content}\n` : `\n\n${c.title}\n\n${content}\n`;
+                    });
+                    return text;
+                };
+
+                // 核心：保存到本地硬盘
+                const saveToDisk = async () => {
+                    // 1. 检查浏览器支持
+                    if (!window.showSaveFilePicker) return alert("❌ 您的浏览器不支持文件系统访问 (请使用 Chrome/Edge 桌面版)");
+
+                    try {
+                        ui.saveState = "💾 Saving...";
+
+                        // 2. 如果没有句柄，请求用户创建一个新文件
+                        if (!fileHandle.value) {
+                            const opts = {
+                                suggestedName: `《${project.name}》.txt`,
+                                types: [{ description: 'Text File', accept: { 'text/plain': ['.txt'] } }],
+                            };
+                            fileHandle.value = await window.showSaveFilePicker(opts);
+                        }
+
+                        // 3. 创建写入流
+                        const writable = await fileHandle.value.createWritable();
+
+                        // 4. 生成文本并写入
+                        const content = generateFullText(false); // 默认保存 TXT，兼容性最好
+                        await writable.write(content);
+
+                        // 5. 关闭流
+                        await writable.close();
+
+                        ui.saveState = "✅ Linked";
+
+                        // 自动创建一个快照
+                        takeSnapshot("硬盘同步完成");
+                    } catch (err) {
+                        if (err.name !== 'AbortError') {
+                            console.error(err);
+                            alert("保存失败: " + err.message);
+                            ui.saveState = "❌ Error";
+                        } else {
+                            ui.saveState = "Ready"; // 用户取消
+                        }
+                    }
+                };
+
+                // 核心：另存为 (重置句柄)
+                const saveAsDisk = () => {
+                    fileHandle.value = null; // 强制断开连接，触发新的保存对话框
+                    saveToDisk();
+                };
+
+                // 3. 工具函数
+                const debounce = (fn, delay) => { let timeoutId; return (...args) => { clearTimeout(timeoutId); timeoutId = setTimeout(() => fn(...args), delay); }; };
+                const safeEncode = (str) => { try { return btoa(str); } catch { return str; } };
+                const safeDecode = (str) => { try { return atob(str); } catch { return str; } };
+                const renderMarkdown = (text) => marked.parse(text || "");
+                const cleanAIOutput = (text, densityType = 'loose') => {
+                    let clean = text.replace(/^#+\s+/gm, '').replace(/\*\*(.*?)\*\*/g, '$1').trim();
+                    if (densityType === 'tight') return clean.replace(/\n+/g, '\n');
+                    else return clean.replace(/\n{3,}/g, '\n\n').replace(/([^\n])\n([^\n])/g, '$1\n\n$2');
+                };
+
+                // 4. 业务逻辑：快照与编辑
+                const takeSnapshot = async (reason) => {
+                    const content = project.chapters[project.currentChap].content;
+                    if (!content) return;
+                    const snap = { id: Date.now(), chapterIndex: project.currentChap, content: content, timestamp: new Date().toLocaleString(), reason: reason, wordCount: content.length };
+                    await SimpleDB.saveSnapshot(snap);
+                    lastSnapshotTime = Date.now(); lastSnapshotLength = content.length;
+                    if (ui.activeTab === 'status') refreshSnapshots();
+                };
+                const refreshSnapshots = async () => { const list = await SimpleDB.getSnapshots(project.currentChap); ui.snapshots = list.map(s => ({ ...s, displayTime: s.timestamp.split(' ')[1] })); };
+                const restoreSnapshot = (snap) => { if (!confirm(`⚠️ 确认回滚到 [${snap.displayTime}] 的版本吗？`)) return; takeSnapshot("回滚前备份"); project.chapters[project.currentChap].content = snap.content; refreshEditor(); alert("✅ 回滚成功"); };
+                const refreshEditor = () => { if (editorDiv.value) editorDiv.value.innerText = project.chapters[project.currentChap]?.content || ""; lastSnapshotLength = project.chapters[project.currentChap]?.content?.length || 0; };
+
+                // 5. 业务逻辑：墨灵与编辑器交互
+                const toggleInkMenu = () => { ui.inkExpanded = !ui.inkExpanded; };
+                const runInkMagic = async (action) => {
+                    if (!ui.inkRange || ui.inkRange.collapsed) return;
+                    const selectedText = ui.inkRange.toString();
+                    if (!selectedText) return;
+                    await takeSnapshot("墨灵修改前");
+                    let prompt = "";
+                    if (action === 'polish') prompt = `请润色这段文字，使其更具文学性：\n"${selectedText}"`;
+                    else if (action === 'expand') prompt = `请扩写这段文字，增加细节描写：\n"${selectedText}"`;
+                    else if (action === 'continue') prompt = `请根据这段文字续写后续发展：\n"${selectedText}"`;
+                    else if (action === 'custom') prompt = `针对这段文字："${selectedText}"，执行指令：${ui.inkInput}`;
+                    ui.inkVisible = false; ui.inkExpanded = false; ui.inkInput = "";
+                    let sys = "你是一个专业的辅助写作AI。请直接输出结果，不要废话。";
+                    const activeGrim = project.grimoires.find(g => g.active);
+                    if (ui.usePersona && activeGrim) sys = activeGrim.prompt;
+                    const ragContext = Archivist.search(selectedText, 2);
+                    if (ragContext.length > 0) { sys += `\n\n[相关设定/回忆]:\n${ragContext.join('\n')}`; }
+                    const span = document.createElement('span');
+                    span.style.color = 'var(--accent-primary)';
+                    span.innerText = " (✨ 施法中...)";
+                    try {
+                        const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(ui.inkRange); ui.inkRange.deleteContents(); ui.inkRange.insertNode(span);
+                        let buffer = "";
+                        await generateStream(prompt, sys, (t, val) => { if (t === 'content') { buffer += val; span.innerText = buffer; } });
+                        const final = cleanAIOutput(buffer, config.appearance.density);
+                        span.replaceWith(document.createTextNode(final));
+                        project.chapters[project.currentChap].content = editorDiv.value.innerText;
+                    } catch (e) { span.innerText = " [施法失败: " + e.message + "]"; setTimeout(() => span.remove(), 2000); }
+                };
+
+                // 6. 业务逻辑：聊天与工具
+                const loadTools = async () => { let stored = await SimpleDB.get('custom_tools'); if (!stored || stored.length === 0) { stored = Assets.toolsData; await SimpleDB.set('custom_tools', stored); } allTools.value = stored.map((cat, i) => ({ ...cat, open: i === 0 })); };
+                const saveTools = async () => { const rawData = allTools.value.map(cat => ({ title: cat.title, items: cat.items })); await SimpleDB.set('custom_tools', rawData); };
+                const forceRebuildIndex = () => { Archivist.build(project); alert("✅ 记忆宫殿已强制重建"); };
+                const saveChatHistory = debounce(() => { SimpleDB.set('hw_chat_history', ui.chatMessages); }, 1000);
+                const clearChatHistory = async () => { if (!confirm("清空与顾问的对话记录？")) return; ui.chatMessages = []; await SimpleDB.set('hw_chat_history', []); };
+                const sendChatMessage = async () => {
+                    const txt = ui.chatInput.trim();
+                    if (!txt || ui.isChatting) return;
+                    ui.chatMessages.push({ role: 'user', content: txt });
+                    saveChatHistory();
+                    ui.chatInput = '';
+                    ui.isChatting = true;
+                    nextTick(() => { const b = document.getElementById('chat-box'); if (b) b.scrollTop = b.scrollHeight; });
+                    const ragContext = Archivist.search(txt, 3);
+                    let sysPrompt = "你是一位熟读本书的专业编辑顾问。请根据用户的问题，结合回忆碎片进行回答。回答要简洁、有建设性。";
+                    if (ragContext.length > 0) { sysPrompt += `\n\n[检索到的相关回忆]:\n${ragContext.join('\n---\n')}`; }
+                    let replyContent = "";
+                    try {
+                        await generateStream(txt, sysPrompt, (t, val) => { if (t === 'content') replyContent += val; });
+                        ui.chatMessages.push({ role: 'ai', content: replyContent, ragInfo: ragContext.length > 0 ? `参考了 ${ragContext.length} 处设定/前文` : null });
+                        saveChatHistory();
+                    } catch (e) { ui.chatMessages.push({ role: 'ai', content: "❌ 思考中断: " + e.message }); } finally { ui.isChatting = false; nextTick(() => { const b = document.getElementById('chat-box'); if (b) b.scrollTop = b.scrollHeight; }); }
+                };
+
+                // 7. 生命周期：挂载
+                onMounted(async () => {
+                    await SimpleDB.init();
+                    const savedConfig = await SimpleDB.get('hw_v29_config');
+                    if (savedConfig) {
+                        if (savedConfig.keys) {
+                            savedConfig.keys.deepseek = safeDecode(savedConfig.keys.deepseek || "");
+                            savedConfig.keys.aihubmix = safeDecode(savedConfig.keys.aihubmix || "");
+                            // 新增：解密自定义 Key
+                            savedConfig.keys.custom = safeDecode(savedConfig.keys.custom || "");
+                        }
+                        // 合并配置 (防止老用户缺少 urls 字段)
+                        Object.assign(config, {
+                            ...savedConfig,
+                            urls: { ...config.urls, ...(savedConfig.urls || {}) }, // 确保读取保存的 URL
+                            appearance: { ...config.appearance, ...savedConfig.appearance }
+                        });
+                    }
+                    const savedProject = await SimpleDB.get('hw_v29_project'); if (savedProject) Object.assign(project, savedProject);
+                    await loadTools();
+                    const savedUI = await SimpleDB.get('hw_ui_prefs');
+                    if (savedUI) { if (savedUI.usePacing !== undefined) ui.usePacing = savedUI.usePacing; if (savedUI.usePersona !== undefined) ui.usePersona = savedUI.usePersona; }
+                    const savedChat = await SimpleDB.get('hw_chat_history');
+                    if (savedChat && Array.isArray(savedChat)) { ui.chatMessages = savedChat; nextTick(() => { const b = document.getElementById('chat-box'); if (b) b.scrollTop = b.scrollHeight; }); }
+                    const savedTheme = localStorage.getItem('hw_theme');
+                    if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); ui.isDark = true; }
+                    refreshEditor(); refreshSnapshots();
+                    Archivist.build(project); // Async build RAG
+
+                    window.addEventListener('keydown', (e) => {
+                        // Ctrl+S: 保存到硬盘
+                        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                            e.preventDefault();
+                            saveToDisk(); // 调用刚才写的函数
+                        }
+                        // Ctrl+E: 沉浸模式
+                        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
+                            e.preventDefault();
+                            ui.zenMode = !ui.zenMode;
+                            if (ui.zenMode) document.body.classList.add('zen-mode');
+                            else document.body.classList.remove('zen-mode');
+                        }
+                    });
+                    document.addEventListener('selectionchange', () => {
+                        clearTimeout(inkDebounceTimer);
+                        inkDebounceTimer = setTimeout(() => {
+                            const sel = window.getSelection();
+                            if (sel.rangeCount > 0 && !sel.isCollapsed && editorDiv.value && editorDiv.value.contains(sel.anchorNode)) {
+                                const range = sel.getRangeAt(0);
+                                const rect = range.getBoundingClientRect();
+                                let topPos = rect.top + window.scrollY - 50;
+                                if (topPos < 60) topPos = rect.bottom + window.scrollY + 10;
+                                ui.inkPos = { x: rect.left + rect.width / 2 - 16, y: topPos };
+                                ui.inkVisible = true;
+                                ui.inkRange = range.cloneRange();
+                            } else { if (!ui.inkExpanded) ui.inkVisible = false; }
+                        }, 150);
+                    });
+                    if (editorDiv.value) { editorDiv.value.addEventListener('scroll', () => { if (!ui.inkExpanded) ui.inkVisible = false; }); }
+                    document.addEventListener('mousedown', (e) => { if (ui.inkVisible && !e.target.closest('#ink-spirit')) { ui.inkVisible = false; ui.inkExpanded = false; } });
+
+                    // Tooltip Logic
+                    const tooltipEl = document.getElementById('global-tooltip');
+                    document.body.addEventListener('mouseover', (e) => { if (e.target.classList && e.target.classList.contains('lore-mention')) { const text = e.target.getAttribute('data-desc'); if (!text) return; tooltipEl.innerText = text; tooltipEl.classList.add('visible'); const rect = e.target.getBoundingClientRect(); const tipRect = tooltipEl.getBoundingClientRect(); let top = rect.top - tipRect.height - 12; let left = rect.left + (rect.width / 2) - (tipRect.width / 2); if (left < 10) left = 10; if (left + tipRect.width > window.innerWidth - 10) left = window.innerWidth - tipRect.width - 10; if (top < 10) top = rect.bottom + 12; tooltipEl.style.top = `${top}px`; tooltipEl.style.left = `${left}px`; } });
+                    document.body.addEventListener('mouseout', (e) => { if (e.target.classList && e.target.classList.contains('lore-mention')) { tooltipEl.classList.remove('visible'); } });
+
+                    // Drag & Drop Listener
+                    window.addEventListener('dragenter', (e) => { if (e.dataTransfer.types && e.dataTransfer.types.includes('Files')) ui.isDragging = true; });
+                });
+
+                // 8. 监听器：自动保存
+                watch(config, () => {
+                    const secureConfig = JSON.parse(JSON.stringify(config));
+                    if (secureConfig.keys) {
+                        secureConfig.keys.deepseek = safeEncode(secureConfig.keys.deepseek || "");
+                        secureConfig.keys.aihubmix = safeEncode(secureConfig.keys.aihubmix || "");
+                        // 新增：加密自定义 Key
+                        secureConfig.keys.custom = safeEncode(secureConfig.keys.custom || "");
+                    }
+                    SimpleDB.set('hw_v29_config', secureConfig);
+                }, { deep: true });
+                const debouncedSaveProject = debounce(() => { SimpleDB.set('hw_v29_project', project); ui.saveState = '☁️ Saved'; Archivist.build(project); }, 1000);
+                watch(project, () => { debouncedSaveProject(); }, { deep: true });
+                watch(() => project.currentChap, () => { refreshEditor(); refreshSnapshots(); });
+                watch(() => ui.activeTab, (val) => { if (val === 'status') refreshSnapshots(); });
+                const saveUIState = debounce(() => { SimpleDB.set('hw_ui_prefs', { usePacing: ui.usePacing, usePersona: ui.usePersona }); }, 1000);
+                watch(() => [ui.usePacing, ui.usePersona], () => { saveUIState(); });
+
+                // 9. 计算属性
+                const currentModelDisplay = computed(() => { const p = config.activeProvider; const custom = config.customModels[p]; return custom ? custom : config.models[p]; });
+                const pacingLabel = computed(() => PacingConfig[ui.pacingVal]?.l || '');
+                const currentWordCount = computed(() => { const txt = project.chapters[project.currentChap]?.content || ""; return txt.replace(/\s+/g, '').length; });
+                const filteredTools = computed(() => { if (!ui.toolSearch) return allTools.value; let result = []; allTools.value.forEach(cat => { const items = cat.items.filter(t => t.name.includes(ui.toolSearch)); if (items.length > 0) result.push({ ...cat, items, open: true }); }); return result; });
+
+                // 10. 事件处理函数集
+                const onEditorInput = (e) => {
+                    if (ui.saveState !== '✎ Writing...') ui.saveState = '✎ Writing...';
+                    bloomCounter++; if (bloomCounter % 3 === 0) spawnBloom();
+                    const txt = e.target.innerText.replace(/\u200B/g, '');
+                    project.chapters[project.currentChap].content = txt;
+                    const now = Date.now(); const len = txt.length;
+                    if (now - lastSnapshotTime > 5 * 60 * 1000 || Math.abs(len - lastSnapshotLength) > 50) { if (now - lastSnapshotTime > 10000) { takeSnapshot("自动备份"); } }
+                };
+                const onEditorPaste = (e) => { e.preventDefault(); const text = (e.clipboardData || window.clipboardData).getData('text'); document.execCommand('insertText', false, text); };
+                const toggleTheme = () => { document.body.classList.toggle('dark-mode'); const isDark = document.body.classList.contains('dark-mode'); localStorage.setItem('hw_theme', isDark ? 'dark' : 'light'); ui.isDark = isDark; };
+                const triggerFileSelect = () => { if (fileInput.value) fileInput.value.click(); };
+                const handleFileUpload = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { const text = ev.target.result.slice(0, 3000); project.grimoires.push({ id: Date.now().toString(), name: file.name.replace(/\.[^/.]+$/, ""), prompt: `【基于文件 ${file.name} 的分析】\n\n(以下是文件原文片段，请AI据此模仿风格):\n${text}...\n\n(请在此处补充具体的风格指令...)`, active: true }); const newG = project.grimoires[project.grimoires.length - 1]; activateGrimoire(newG); alert(`✅ 已读取 "${file.name}"！\n新人格已创建，请在下方编辑器中完善 Prompt。`); }; reader.readAsText(file); e.target.value = ''; };
+                const checkQuota = async (provider) => {
+                    const key = config.keys[provider];
+                    if (!key) { ui.quotaMsg = "<span style='color:red'>❌ No Key</span>"; return; }
+                    ui.quotaMsg = "⏳ Checking...";
+
+                    // [核心改动] 动态获取 URL
+                    const url = config.urls[provider];
+
+                    const model = config.customModels[provider] || config.models[provider];
+                    try {
+                        const res = await fetch(url, {
+                            method: "POST",
+                            headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+                            body: JSON.stringify({ model, messages: [{ role: "user", content: "hi" }], max_tokens: 1 })
+                        });
+                        ui.quotaMsg = res.status === 200 ? "<span style='color:green'>✅ Online</span>" : `<span style='color:red'>❌ Error ${res.status}</span>`;
+                    } catch { ui.quotaMsg = "<span style='color:red'>❌ Network Error</span>"; }
+                };
+                const resetAll = async () => { if (confirm("Reset All?")) { await SimpleDB.clear(); location.reload(); } };
+                const getToolFields = (t) => { if (!t) return []; if (t.customFields && Array.isArray(t.customFields)) return t.customFields; return Assets.forms[t.f] || Assets.forms['free']; };
+                const openTool = (t) => { ui.activeTool = t; toolInputs.value = {}; };
+                const openToolBuilder = () => { toolBuilder.name = ""; toolBuilder.catTitle = "我的工具"; toolBuilder.fields = [{ l: "关键词", t: "input", p: "请输入..." }]; toolBuilder.template = "请根据关键词：{{关键词}}，写一段..."; ui.modalCustomTool = true; };
+                const addBuilderField = () => { toolBuilder.fields.push({ l: "", t: "input", p: "" }); };
+                const saveToolToDB = async () => { if (!toolBuilder.name) return alert("❌ 必须填写工具名称"); const newTool = { name: toolBuilder.name, f: 'custom', customFields: JSON.parse(JSON.stringify(toolBuilder.fields)), template: toolBuilder.template }; let targetCat = allTools.value.find(c => c.title === toolBuilder.catTitle); if (!targetCat) { targetCat = { title: toolBuilder.catTitle, items: [], open: true }; allTools.value.push(targetCat); } targetCat.items.push(newTool); targetCat.open = true; await saveTools(); ui.modalCustomTool = false; setTimeout(() => { openTool(newTool); }, 100); };
+                const deleteTool = async (cat, index) => { const toolName = cat.items[index].name; if (!confirm(`⚠️ 确定要销毁工具 "${toolName}" 吗？\n此操作不可逆。`)) return; cat.items.splice(index, 1); await saveTools(); if (ui.activeTool && ui.activeTool.name === toolName) ui.activeTool = null; };
+                const applyTool = () => { const fields = getToolFields(ui.activeTool); let txt = `【${ui.activeTool.name}】\n`; fields.forEach((f, i) => { if (toolInputs.value[i]) txt += `${f.l}: ${toolInputs.value[i]}\n`; }); ui.promptInput = txt; };
+                const createGrimoire = () => { project.grimoires.push({ id: Date.now().toString(), name: "新人格", prompt: "请输入...", active: false }); };
+                const activateGrimoire = (g) => { project.grimoires.forEach(x => x.active = false); g.active = true; ui.editingGrimoire = g; };
+                const deleteGrimoire = () => { if (!confirm("删除?")) return; const idx = project.grimoires.findIndex(x => x.id === ui.editingGrimoire.id); if (idx > -1) project.grimoires.splice(idx, 1); ui.editingGrimoire = null; };
+                const addChapter = (isVol) => { project.chapters.push({ title: isVol ? "=== 卷标 ===" : "新章节", content: "", isVolume: isVol }); };
+                const delChapter = (i) => { if (!confirm("删除?")) return; if (i === project.currentChap && project.chapters.length > 1) project.currentChap = Math.max(0, i - 1); project.chapters.splice(i, 1); if (project.chapters.length === 0) addChapter(false); };
+                const switchChapter = (i) => { project.currentChap = i; };
+                const dragStart = (i, e) => { ui.dragSrcIndex = i; e.target.classList.add('dragging'); };
+                const dragDrop = (i, e) => { const src = ui.dragSrcIndex; if (src !== null && src !== i) { const item = project.chapters.splice(src, 1)[0]; project.chapters.splice(i, 0, item); if (src === project.currentChap) project.currentChap = i; else if (src < project.currentChap && i >= project.currentChap) project.currentChap--; else if (src > project.currentChap && i <= project.currentChap) project.currentChap++; } e.target.classList.remove('dragging'); };
+                const addChar = () => { const n = ui.newChar; if (!n.name) return; project.lorebook.push({ name: n.name, desc: `【身份】${n.role}\n【外貌】${n.visual}\n【性格】${n.psyche}\n【口吻】${n.voice}\n【欲望】${n.goal}` }); ui.newChar = { name: '', role: '', visual: '', psyche: '', voice: '', goal: '' }; };
+                const addCodex = () => { if (ui.newCodex.name) { project.codex.push({ ...ui.newCodex }); ui.newCodex = { name: '', desc: '' }; } };
+                const exportMerged = (format = 'txt') => {
+                    let text = ""; const isMd = format === 'md'; const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+                    const totalWords = project.chapters.reduce((acc, c) => acc + (c.content ? c.content.length : 0), 0);
+                    if (isMd) { text += `# ${project.name || '未命名作品'}\n\n> 作者：${project.protagonist || '佚名'} | 字数：${totalWords} | 导出日期：${new Date().toLocaleDateString()}\n\n---\n\n`; }
+                    project.chapters.forEach(c => { const content = c.content ? c.content.trim() : ""; if (c.isVolume) text += isMd ? `\n\n## ${c.title}\n\n` : `\n\n=== ${c.title} ===\n\n`; else text += isMd ? `\n\n### ${c.title}\n\n${content}\n` : `\n\n${c.title}\n\n${content}\n`; });
+                    const blob = new Blob([text], { type: isMd ? "text/markdown;charset=utf-8" : "text/plain;charset=utf-8" });
+                    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `《${project.name || '未命名'}》_${dateStr}_${totalWords}字.${isMd ? 'md' : 'txt'}`; a.click(); URL.revokeObjectURL(url);
+                };
+                const triggerBookImport = () => { if (bookInput.value) bookInput.value.click(); };
+                const processBookFile = (file) => {
+                    if (!file) return;
+                    if (file.type && !file.type.startsWith('text/') && !file.name.endsWith('.txt')) { alert("⚠️ 仅支持 .txt 纯文本文件"); return; }
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const text = ev.target.result; const pattern = /^\s*(第[0-9一二三四五六七八九十百千]+[章卷].*|Chapter\s+\d+.*|\d+\.\s+.*)\s*$/gm;
+                        const indices = []; let match;
+                        while ((match = pattern.exec(text)) !== null) { indices.push({ start: match.index, end: match.index + match[0].length, title: match[1].trim() }); }
+                        const newChapters = [];
+                        if (indices.length === 0) { newChapters.push({ title: "全文导入", content: text, isVolume: false }); } else {
+                            if (indices[0].start > 0) { const intro = text.substring(0, indices[0].start).trim(); if (intro) newChapters.push({ title: "【序章/前言】", content: intro, isVolume: false }); }
+                            for (let i = 0; i < indices.length; i++) { const current = indices[i]; const next = indices[i + 1]; const contentStart = current.end; const contentEnd = next ? next.start : text.length; let contentBody = text.substring(contentStart, contentEnd).replace(/^\s+/, '').replace(/\s+$/, ''); newChapters.push({ title: current.title, content: contentBody, isVolume: false }); }
+                        }
+                        ui.importCandidate = { name: file.name.replace(/\.[^/.]+$/, ""), count: newChapters.length, preview: newChapters.slice(0, 5), chapters: newChapters };
+                        ui.modalImport = true;
+                    };
+                    reader.readAsText(file);
+                };
+                const handleBookImport = (e) => { const file = e.target.files[0]; if (file) processBookFile(file); e.target.value = ''; };
+                const onFileDrop = (e) => { ui.isDragging = false; const files = e.dataTransfer.files; if (files.length > 0) processBookFile(files[0]); };
+                const confirmImport = () => { if (!ui.importCandidate) return; takeSnapshot("导入新书前自动备份"); project.name = ui.importCandidate.name; project.chapters = ui.importCandidate.chapters; project.currentChap = 0; ui.modalImport = false; ui.importCandidate = null; refreshEditor(); setTimeout(() => Archivist.build(project), 500); };
+
+                // Batch Operation Logic
+                const toggleBatchMode = () => { ui.batchMode = !ui.batchMode; batchSelection.clear(); };
+                const toggleChapterSelect = (index) => { if (batchSelection.has(index)) batchSelection.delete(index); else batchSelection.add(index); };
+                const selectAllChapters = () => { if (batchSelection.size === project.chapters.length) batchSelection.clear(); else project.chapters.forEach((_, i) => batchSelection.add(i)); };
+                const batchDelete = () => { if (batchSelection.size === 0) return; if (confirm(`⚠️ 确定要删除选中的 ${batchSelection.size} 个章节吗？\n此操作不可撤销。`)) { takeSnapshot("批量删除前备份"); const newChapters = project.chapters.filter((_, index) => !batchSelection.has(index)); if (newChapters.length === 0) newChapters.push({ title: "新章节", content: "", isVolume: false }); project.chapters = newChapters; project.currentChap = 0; batchSelection.clear(); ui.batchMode = false; refreshEditor(); } };
+
+                const exportJson = () => { const url = URL.createObjectURL(new Blob([JSON.stringify(project)], { type: "application/json" })); const a = document.createElement('a'); a.href = url; a.download = `backup_${Date.now()}.json`; a.click(); };
+                const importJson = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = '.json'; input.onchange = e => { const file = e.target.files[0]; const r = new FileReader(); r.onload = ev => { try { Object.assign(project, JSON.parse(ev.target.result)); alert("✅ 导入成功"); } catch { alert("❌ 格式错误"); } }; r.readAsText(file); }; input.click(); };
+                const openWriter = () => { const sel = window.getSelection().toString(); ui.writerInput = sel || ""; ui.modalWriter = true; ui.writerOutput = ""; };
+                const applyWriter = () => { if (!ui.writerOutput) return; takeSnapshot("AI插入前"); const ed = editorDiv.value; ed.focus(); document.execCommand('insertText', false, ui.writerOutput.trim() + "\n"); project.chapters[project.currentChap].content = ed.innerText; ui.modalWriter = false; };
+                const spawnBloom = () => { const sel = window.getSelection(); if (!sel.rangeCount) return; const rect = sel.getRangeAt(0).getBoundingClientRect(); const p = document.createElement('div'); p.classList.add('bloom-particle'); const isSecondary = Math.random() > 0.5; p.style.background = isSecondary ? 'var(--accent-secondary)' : 'var(--accent-primary)'; const size = 4 + Math.random() * 4; p.style.width = `${size}px`; p.style.height = `${size}px`; p.style.setProperty('--tx', `${(Math.random() - 0.5) * 30}px`); p.style.setProperty('--rot', `${Math.random() * 360}deg`); p.style.left = `${rect.left}px`; p.style.top = `${rect.top}px`; document.body.appendChild(p); setTimeout(() => p.remove(), 1000); };
+                const toggleInsight = () => { const ed = editorDiv.value; if (!ed) return; const entities = [...project.lorebook.map(x => ({ k: x.name, v: x.desc })), ...project.codex.map(x => ({ k: x.name, v: x.desc }))].sort((a, b) => b.k.length - a.k.length); if (entities.length === 0) return alert("📚 暂无设定数据，请先在[角色]或[设定]中添加。"); let html = ed.innerText; entities.forEach(ent => { if (!ent.k) return; const safeKey = ent.k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const regex = new RegExp(`(${safeKey})`, 'g'); const shortDesc = ent.v.replace(/\n/g, ' ').slice(0, 60) + (ent.v.length > 60 ? '...' : ''); html = html.replace(regex, `<span class="lore-mention" contenteditable="false" data-desc="${ent.k}：${shortDesc}">$1</span>\u200B`); }); ed.innerHTML = html; const btn = document.activeElement; if (btn) { const originalText = btn.innerText; btn.innerText = "✨ 已高亮"; setTimeout(() => btn.innerText = originalText, 1500); } };
+                const editorUndo = () => { document.execCommand('undo'); };
+                const editorClear = () => { if (confirm("确定清空?")) { takeSnapshot("清空前备份"); if (editorDiv.value) editorDiv.value.innerText = ""; project.chapters[project.currentChap].content = ""; } };
+
+                // AI Stream Generation
+                const generateStream = async (prompt, sysPrompt, onChunk) => { const p = config.activeProvider; const url = config.urls[p]; const model = config.customModels[p] || config.models[p]; const key = config.keys[p]; try { const res = await fetch(url, { method: "POST", headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" }, body: JSON.stringify({ model, messages: [{ role: "system", content: sysPrompt }, { role: "user", content: prompt }], stream: true, temperature: parseFloat(ui.temp), max_tokens: 4096 }) }); if (!res.ok) throw new Error(`API Error: ${res.status}`); const reader = res.body.getReader(); const decoder = new TextDecoder("utf-8"); let buffer = ""; while (true) { const { done, value } = await reader.read(); if (done) break; buffer += decoder.decode(value, { stream: true }); const lines = buffer.split('\n'); buffer = lines.pop(); for (const line of lines) { const trimmed = line.trim(); if (!trimmed || trimmed === 'data: [DONE]') continue; if (trimmed.startsWith('data: ')) { try { const json = JSON.parse(trimmed.replace(/^data: /, '')); const c = json.choices[0].delta.content || ""; const r = json.choices[0].delta.reasoning_content || ""; if (r) onChunk('reasoning', r); if (c) onChunk('content', c); } catch (e) { console.warn("Stream parse warning:", e); } } } } } catch (err) { onChunk('content', `\n[系统错误: ${err.message}]`); } };
+
+                const runEngine = async (type) => { ui.isGenerating = true; ui.stagingText = ""; ui.lastRagContext = ""; let sys = "你是一位专业小说家。"; const activeGrim = project.grimoires.find(g => g.active); if (ui.usePersona && activeGrim) sys = activeGrim.prompt; const query = type.startsWith('fate_') ? project.chapters[project.currentChap].content.slice(-500) : ui.promptInput + " " + project.chapters[project.currentChap].content.slice(-300); const ragContext = Archivist.search(query, 3); if (ragContext.length > 0) { sys += `\n\n[相关前文回忆]:\n${ragContext.join('\n---\n')}`; ui.lastRagContext = ragContext[0].substring(0, 60); } if (type.startsWith('fate_')) { ui.showFateDeck = false; const subType = type.split('_')[1]; let instruction = ""; if (subType === 'conflict') instruction = "【任务：生成一个高风险、快节奏的冲突情节】\n侧重：外部动作、战斗、紧张感。让主角陷入危机。"; else if (subType === 'mystery') instruction = "【任务：生成一个悬疑、揭秘的情节】\n侧重：信息差、伏笔揭露、心理博弈。抛出一个意外的真相。"; else if (subType === 'emotion') instruction = "【任务：生成一个情感细腻、氛围感强的情节】\n侧重：角色羁绊、内心独白、环境渲染。放慢节奏，触动人心。"; sys += `\n\n${instruction}`; } else if (ui.usePacing) { sys += `\n\n${PacingConfig[ui.pacingVal]?.p || ''}`; } sys += `\n\n【输出限制】\n1. 禁止使用Markdown标题(如#)。\n2. 禁止开场白和结束语。\n3. 段落间仅空一行。\n4. 紧凑排版。`; const ctxScope = (project.chapters[project.currentChap].content.slice(-3000) + " " + ui.promptInput).toLowerCase(); const activeLore = project.lorebook.filter(c => ctxScope.includes(c.name)); if (activeLore.length) sys += `\n\n[角色]: ${activeLore.map(c => `${c.name}:${c.desc}`).join('\n')}`; if (project.context) sys += `\n\n[世界]: ${project.context}`; try { let userPrompt = type.startsWith('fate_') ? `正文片段：\n${project.chapters[project.currentChap].content.slice(-2000)}\n请根据设定写出后续发展。` : ui.promptInput; let buffer = ""; let think = ""; await generateStream(userPrompt, sys, (t, val) => { if (t === 'reasoning') think += val; else buffer += val; ui.tempContentBuffer = cleanAIOutput(buffer, config.appearance.density); ui.stagingText = (think ? `> 🧠 ${think}\n\n` : "") + ui.tempContentBuffer; }); } catch (e) { ui.stagingText = "Error: " + e.message; } finally { ui.isGenerating = false; } };
+                const runWriter = async (mode) => { ui.writerOutput = "Thinking..."; let task = mode === 'expand' ? '扩写' : (mode === 'polish' ? '润色' : '续写'); let sys = `【作家模式】\n任务：${task}。禁止Markdown标题。`; try { let buffer = ""; let think = ""; await generateStream(ui.writerInput, sys, (t, val) => { if (t === 'reasoning') think += val; else buffer += val; ui.writerOutput = (think ? `> 🧠 ${think}\n\n` : "") + buffer; }); } catch (e) { ui.writerOutput = "Error: " + e.message; } };
+                const autoGenWorld = async () => { const prompt = `书名:${project.name}。基调:${project.context}。请设计：1.力量体系 2.主要势力。JSON格式{"power":"...","factions":"..."}`; try { let jsonStr = ""; await generateStream(prompt, "世界架构师", (t, v) => { if (t === 'content') jsonStr += v; }); const match = jsonStr.match(/\{[\s\S]*\}/); if (match) { const res = JSON.parse(match[0]); if (res.power) project.powerSystem = res.power; if (res.factions) project.factions = res.factions; } } catch (e) { alert("AI生成JSON失败"); } };
+                const acceptStaging = () => { if (!ui.tempContentBuffer) return; takeSnapshot("AI采纳前"); const finalContent = cleanAIOutput(ui.tempContentBuffer, config.appearance.density); const ed = editorDiv.value; ed.focus(); if (lastRange) { const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(lastRange); } document.execCommand('insertText', false, finalContent.trim() + "\n"); project.chapters[project.currentChap].content = ed.innerText; ui.stagingText = ""; };
+                const addTodo = () => { if (ui.newTodo) { project.todos.push({ text: ui.newTodo, done: false }); ui.newTodo = ''; } };
+                const addHole = () => { if (ui.newHole) { project.plotholes.push({ text: ui.newHole, done: false }); ui.newHole = ''; } };
+
+                // [NEW] Updated Archivist Hook
+                const originalArchivistBuild = Archivist.build;
+                Archivist.build = function (project) { originalArchivistBuild.call(this, project); ragStats.shardCount = this.shards.length; ragStats.totalChars = this.shards.reduce((acc, s) => acc + s.text.length, 0); };
+
+                return {
+                    config, project, ui, toolInputs, currentModelDisplay, pacingLabel, currentWordCount, filteredTools,
+                    editorDiv, toggleTheme, checkQuota, resetAll, getToolFields, openTool, applyTool, createGrimoire,
+                    activateGrimoire, deleteGrimoire, addChapter, delChapter, switchChapter, dragStart, dragDrop,
+                    addChar, addCodex, autoGenWorld, exportMerged, exportJson, importJson, openWriter, runWriter,
+                    applyWriter, runEngine, acceptStaging, renderMarkdown, addTodo, addHole, onEditorInput,
+                    onEditorPaste, refreshEditor, editorUndo, editorClear, fileInput, triggerFileSelect,
+                    handleFileUpload, toolBuilder, openToolBuilder, addBuilderField, saveToolToDB, allTools, deleteTool,
+                    toggleInsight, restoreSnapshot, bookInput, triggerBookImport, handleBookImport,
+                    toggleInkMenu, runInkMagic, confirmImport, batchSelection, toggleBatchMode, toggleChapterSelect, selectAllChapters, batchDelete,
+                    ragStats, forceRebuildIndex, sendChatMessage, clearChatHistory, onFileDrop, saveToDisk, saveAsDisk, isFileLinked, fileHandle
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
