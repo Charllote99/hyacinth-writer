@@ -2545,21 +2545,25 @@
                             @dragstart="!ui.batchMode && dragStart(i, $event)" @dragover.prevent
                             @drop="!ui.batchMode && dragDrop(i, $event)"
                             @click="ui.batchMode ? toggleChapterSelect(i) : switchChapter(i)">
+
                             <div v-if="ui.batchMode" style="margin-right:10px; pointer-events:none;">
                                 <input type="checkbox" :checked="batchSelection.has(i)">
                             </div>
+
                             <template v-if="c.isVolume">
-                                <input v-model="c.title" :disabled="ui.batchMode"
-                                    style="border:none; background:transparent; width:100%; color:inherit; text-align:center;">
+                                <input v-model="c.title" :disabled="ui.batchMode" @click.stop
+                                    style="border:none; background:transparent; width:100%; color:inherit; text-align:center; font-weight:bold;">
                                 <span v-if="!ui.batchMode" @click.stop="delChapter(i)"
                                     style="cursor:pointer; opacity:0.6; margin-left:5px;">✕</span>
                             </template>
+
                             <template v-else>
                                 <div style="flex:1; display:flex; align-items:center;">
                                     <span v-if="!ui.batchMode"
                                         style="opacity:0.3; cursor:grab; margin-right:8px;">☰</span>
-                                    <input v-model="c.title" :disabled="ui.batchMode"
-                                        style="border:none; background:transparent; font-weight:bold; width:100px; color:inherit; pointer-events:none;">
+
+                                    <input v-model="c.title" :disabled="ui.batchMode" @click.stop
+                                        style="border:none; background:transparent; font-weight:bold; width:100%; min-width: 100px; color:inherit;">
                                 </div>
                                 <span v-if="!ui.batchMode" @click.stop="delChapter(i)"
                                     style="cursor:pointer; opacity:0.6;">✕</span>
