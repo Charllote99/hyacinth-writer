@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Hyacinth Writer v30.0 - ZeroGravity Edition</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Great+Vibes&family=Noto+Serif+SC:wght@300;500;700&family=Ma+Shan+Zheng&family=Inter:wght@200;300;400;600&display=swap"
@@ -1818,11 +1819,438 @@
                 break-inside: avoid;
             }
         }
+
+        .ambient-menu {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            width: 220px;
+            background: var(--glass-surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: var(--shadow-float);
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            animation: fadeIn 0.2s;
+        }
+
+        .ambient-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-main);
+        }
+
+        .install-banner {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 5px 20px rgba(155, 89, 182, 0.4);
+            cursor: pointer;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            font-size: 13px;
+            animation: slideUp 0.5s;
+        }
+
+        @media (max-width: 768px) {
+
+            /* 1. 全局布局调整 */
+            body {
+                overscroll-behavior-y: none;
+                /* 防止橡皮筋效果 */
+            }
+
+            #os-bar {
+                padding: 0 10px;
+                height: 50px;
+                /* 顶部栏更紧凑 */
+            }
+
+            /* 隐藏顶部栏多余装饰 */
+            .poetic-script,
+            .brand-container,
+            .petal,
+            .model-tag {
+                display: none !important;
+            }
+
+            /* 2. 侧边栏 (抽屉模式) */
+            #config-panel {
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 85% !important;
+                height: 100%;
+                z-index: 900;
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
+                margin-left: 0 !important;
+                background: var(--bg-paper);
+                transform: translateX(0);
+                /* 默认显示 */
+            }
+
+            #config-panel.closed {
+                transform: translateX(-100%);
+                /* 关闭时移出屏幕 */
+                width: 85% !important;
+                opacity: 1;
+            }
+
+            /* 3. 工作区与纸张 */
+            #workspace {
+                padding: 0;
+                height: calc(100vh - 50px);
+            }
+
+            .paper {
+                border-radius: 0;
+                border: none;
+                border-top: 1px solid var(--glass-border);
+                box-shadow: none;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* [核心修复] 工具栏改为：相对定位 + 横向滚动 */
+            .paper-toolbar {
+                position: relative !important;
+                /* 不再悬浮，而是占据实体空间 */
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                border: none;
+                border-bottom: 1px solid var(--glass-border);
+                background: var(--bg-base) !important;
+
+                /* 允许横向滚动 */
+                overflow-x: auto;
+                white-space: nowrap;
+                justify-content: flex-start;
+                /* 左对齐 */
+                padding: 0 10px;
+                gap: 15px;
+                flex-shrink: 0;
+                /* 防止被压缩 */
+
+                /* 隐藏滚动条但保留功能 */
+                -ms-overflow-style: none;
+                /* IE/Edge */
+                scrollbar-width: none;
+                /* Firefox */
+            }
+
+            .paper-toolbar::-webkit-scrollbar {
+                display: none;
+                /* Chrome/Safari */
+            }
+
+            /* 防止按钮组折叠 */
+            .toolbar-group,
+            .toolbar-right {
+                display: flex;
+                gap: 8px;
+                flex-shrink: 0;
+                /* 关键：禁止按钮被挤压 */
+            }
+
+            /* 隐藏中间那个书名显示，腾地方 */
+            .toolbar-center {
+                display: none;
+            }
+
+            /* [核心修复] 编辑器区域 */
+            #editor {
+                /* 因为工具栏现在是 relative 的，不需要顶部 padding 了 */
+                padding: 20px 15px 100px 15px !important;
+                font-size: 16px !important;
+                line-height: 1.8 !important;
+            }
+
+            /* 4. 按钮触摸优化 */
+            .bar-left .btn,
+            .bar-right .btn {
+                padding: 6px 10px;
+                font-size: 14px;
+            }
+
+            .btn {
+                /* 稍微缩小一点按钮内的文字，或者只显示图标 */
+                font-size: 12px;
+                padding: 6px 10px;
+                white-space: nowrap;
+            }
+
+            /* 5. 弹窗全屏适配 */
+            .modal-box {
+                width: 100% !important;
+                height: 100% !important;
+                max-height: 100% !important;
+                border-radius: 0;
+                transform: none !important;
+            }
+
+            .settings-body {
+                padding: 15px;
+            }
+
+            /* 6. 其他浮动元素位置 */
+            .install-banner {
+                width: 90%;
+                bottom: 20px;
+                font-size: 12px;
+            }
+
+            .ink-menu {
+                left: 50%;
+                transform: translateX(-50%) scale(1) !important;
+                bottom: 60px;
+                width: 90%;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .ambient-menu {
+                right: 0;
+                left: 0;
+                width: 100%;
+                top: 50px;
+                border-radius: 0 0 12px 12px;
+            }
+        }
+
+        /* --- 写作热力图样式 --- */
+        .heatmap-wrapper {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+        }
+
+        .heatmap-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-rows: repeat(7, 1fr);
+            /* 7行代表星期 */
+            grid-auto-flow: column;
+            /* 竖着排，形成周 */
+            gap: 3px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .day-cell {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            background-color: rgba(0, 0, 0, 0.05);
+            /* 默认灰色 */
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .day-cell:hover {
+            transform: scale(1.3);
+            border: 1px solid #666;
+            z-index: 10;
+        }
+
+        /* 颜色等级 */
+        .level-0 {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .level-1 {
+            background-color: #9be9a8;
+        }
+
+        /* 少 */
+        .level-2 {
+            background-color: #40c463;
+        }
+
+        .level-3 {
+            background-color: #30a14e;
+        }
+
+        .level-4 {
+            background-color: #216e39;
+        }
+
+        /* --- [新增] 多样化主题定义 --- */
+
+        /* 1. 羊皮纸模式 (Sepia) - 护眼/沉浸 */
+        body.theme-sepia {
+            --bg-base: #f4ecd8;
+            --bg-paper: #fdf6e3;
+            --glass-surface: rgba(244, 236, 216, 0.9);
+            /* 降低透明度 */
+            --glass-border: rgba(94, 75, 53, 0.1);
+            --text-main: #5b4636;
+            --text-sub: #8f7e6d;
+            --accent-primary: #d38e45;
+            /* 琥珀色 */
+            --accent-secondary: #e6b87e;
+            --accent-glow: rgba(211, 142, 69, 0.2);
+            --active-item: rgba(94, 75, 53, 0.05);
+            --input-bg: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 2. 黑客模式 (Matrix) - 极客/高对比/无特效 */
+        body.theme-matrix {
+            --bg-base: #000000;
+            --bg-paper: #0a0a0a;
+            --glass-surface: #000000;
+            /* 去除毛玻璃，纯黑 */
+            --glass-border: #00ff41;
+            /* 终端绿边框 */
+            --glass-highlight: transparent;
+            --text-main: #00ff41;
+            --text-sub: #008f11;
+            --accent-primary: #00ff41;
+            --accent-secondary: #003b00;
+            --accent-glow: rgba(0, 255, 65, 0.2);
+            --active-item: rgba(0, 255, 65, 0.1);
+            --input-bg: #0d0208;
+            --font-serif: 'Consolas', 'Monaco', 'Courier New', monospace;
+            /* 强制等宽字体 */
+            --font-ui: 'Consolas', monospace;
+            backdrop-filter: none !important;
+            /* 关闭模糊 */
+        }
+
+        /* 黑客模式下的特殊微调 */
+        body.theme-matrix .glass-panel,
+        body.theme-matrix .paper-toolbar {
+            background: #000000;
+            border-color: #003b00;
+        }
+
+        body.theme-matrix ::-webkit-scrollbar-thumb {
+            background: #003b00;
+        }
+
+        /* 3. 墨水屏模式 (E-Ink) - 纯粹/阅读器 */
+        body.theme-eink {
+            --bg-base: #e0e0e0;
+            --bg-paper: #ffffff;
+            --glass-surface: #ffffff;
+            --glass-border: #000000;
+            --text-main: #000000;
+            --text-sub: #666666;
+            --accent-primary: #000000;
+            /* 只有黑白 */
+            --accent-secondary: #333333;
+            --accent-glow: transparent;
+            --active-item: #eeeeee;
+            --input-bg: #ffffff;
+            --shadow-soft: none;
+            --shadow-float: 4px 4px 0px rgba(0, 0, 0, 1);
+            /* 硬阴影 */
+            --shadow-island: 2px 2px 0px rgba(0, 0, 0, 1);
+            backdrop-filter: none !important;
+        }
     </style>
 </head>
 
 <body>
+    <div id="rescue-btn" onclick="activateRescue()" title="紧急数据抢救"
+        style="position:fixed; bottom:10px; right:10px; z-index:99999; cursor:pointer; opacity:0.3; transition:opacity 0.3s; font-size:20px; filter:grayscale(1);">
+        ⛑️
+    </div>
 
+    <div id="rescue-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:100000; color:#fff; font-family:monospace; padding:20px; box-sizing:border-box;">
+        <div style="max-width:800px; margin:0 auto; display:flex; flex-direction:column; height:100%;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <strong style="color:#ff7675; font-size:18px;">⛑️ 数据逃生通道</strong>
+                <button onclick="document.getElementById('rescue-modal').style.display='none'"
+                    style="cursor:pointer;">关闭 [X]</button>
+            </div>
+            <div style="margin-bottom:10px; font-size:12px; color:#aaa;">
+                如果主界面无法加载，请复制下方数据并保存为 .json 文件，之后可重新导入。<br>
+                数据来源: IndexedDB (HyacinthDB)
+            </div>
+            <textarea id="rescue-output"
+                style="flex:1; width:100%; background:#222; color:#0f0; border:1px solid #444; padding:10px; font-family:monospace; font-size:12px; resize:none;"
+                readonly placeholder="正在扫描底层数据库..."></textarea>
+            <button onclick="copyRescueData()"
+                style="margin-top:10px; padding:10px; background:#ff7675; color:white; border:none; font-weight:bold; cursor:pointer;">📋
+                一键复制数据</button>
+        </div>
+    </div>
+
+    <script>
+        async function activateRescue() {
+            const modal = document.getElementById('rescue-modal');
+            const output = document.getElementById('rescue-output');
+            modal.style.display = 'block';
+            output.value = "🔍 正在直接读取 IndexedDB...\n";
+
+            try {
+                const dbRequest = indexedDB.open('HyacinthDB');
+
+                dbRequest.onerror = (e) => { output.value += "❌ 数据库连接失败: " + e.target.error; };
+
+                dbRequest.onsuccess = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('kv_store')) {
+                        output.value += "❌ 数据库为空或结构损坏 (Store not found).";
+                        return;
+                    }
+                    const tx = db.transaction(['kv_store'], 'readonly');
+                    const store = tx.objectStore('kv_store');
+                    const getReq = store.get('hw_v29_project');
+
+                    getReq.onsuccess = () => {
+                        const data = getReq.result;
+                        if (data) {
+                            output.value = JSON.stringify(data, null, 2);
+                            output.select();
+                        } else {
+                            output.value += "⚠️ 警告: 数据库中未找到项目数据 (hw_v29_project is empty).";
+                        }
+                    };
+                    getReq.onerror = (err) => { output.value += "❌ 读取数据失败: " + err.target.error; };
+                };
+            } catch (err) { output.value += "❌ 致命错误: " + err.message; }
+        }
+
+        function copyRescueData() {
+            const output = document.getElementById('rescue-output');
+            output.select();
+            document.execCommand('copy');
+            alert("✅ 数据已复制到剪贴板！");
+        }
+
+        document.getElementById('rescue-btn').addEventListener('mouseenter', (e) => e.target.style.opacity = '1');
+        document.getElementById('rescue-btn').addEventListener('mouseleave', (e) => e.target.style.opacity = '0.3');
+    </script>
     <div id="app" v-cloak>
         <div id="os-bar" class="glass-panel">
             <div class="bar-left">
@@ -1868,6 +2296,32 @@
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                         </svg>
                     </button>
+                    <div style="position: relative;">
+                        <button class="btn" :class="{active: ambient.rain || ambient.keyboard}"
+                            @click="ui.showAmbient = !ui.showAmbient" title="环境沉浸">
+                            🎧
+                        </button>
+
+                        <div v-if="ui.showAmbient" class="ambient-menu">
+                            <div
+                                style="font-size:12px; font-weight:bold; border-bottom:1px dashed var(--glass-border); padding-bottom:5px; margin-bottom:5px;">
+                                🌊 心流白噪音 (Procedural)
+                            </div>
+                            <div class="ambient-item">
+                                <span>🌧️ 窗外雨声</span>
+                                <input type="checkbox" v-model="ambient.rain" @change="toggleRain">
+                            </div>
+                            <div class="ambient-item">
+                                <span>⌨️ 机械键盘声</span>
+                                <input type="checkbox" v-model="ambient.keyboard">
+                            </div>
+                            <div class="ambient-item" style="flex-direction:column; align-items:flex-start; gap:5px;">
+                                <span style="font-size:11px; opacity:0.7;">整体音量</span>
+                                <input type="range" v-model="ambient.volume" min="0" max="1" step="0.1"
+                                    @input="updateVolume" style="width:100%">
+                            </div>
+                        </div>
+                    </div>
                     <button class="btn" @click="ui.modalSettings = true">⚙️ 设置</button>
                 </div>
             </div>
@@ -2121,9 +2575,20 @@
                             style="background:var(--active-item); padding:10px; border-radius:8px; border:1px solid var(--accent-primary); margin-bottom:10px;">
                             <div
                                 style="font-size:12px; font-weight:bold; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
-                                <span :style="{color: isFileLinked ? 'green' : 'var(--text-sub)'}">
-                                    {{ isFileLinked ? '🔗 已连接本地文件' : '📡 未连接硬盘' }}
+
+                                <span v-if="isFileLinked" style="color:green">
+                                    🔗 已连接本地文件
                                 </span>
+
+                                <span v-else-if="ui.pendingHandle" style="color:var(--accent-primary); cursor:pointer;"
+                                    @click="restoreConnection">
+                                    ⚠️ 点击恢复连接: {{ ui.pendingHandle.name }}
+                                </span>
+
+                                <span v-else style="color:var(--text-sub)">
+                                    📡 未连接硬盘
+                                </span>
+
                                 <span v-if="isFileLinked" style="font-size:10px; opacity:0.6;">{{ fileHandle?.name
                                     }}</span>
                             </div>
@@ -2175,6 +2640,28 @@
                         <div class="progress-bar-bg">
                             <div class="progress-bar-fill"
                                 :style="{width: Math.min(100, (currentWordCount/3000)*100) + '%'}"></div>
+                        </div>
+                    </div>
+                    <div class="heatmap-wrapper" style="margin-bottom: 15px;">
+                        <div class="heatmap-title">
+                            <span>🔥 创作活力 (近3个月)</span>
+                            <span style="font-weight:normal; opacity:0.7">Keep Writing</span>
+                        </div>
+                        <div class="heatmap-grid">
+                            <div v-for="day in heatmapData" :key="day.date" class="day-cell"
+                                :class="'level-' + day.level"
+                                :title="day.date + '\n净增: ' + day.delta + ' 字\n总计: ' + day.count + ' 字'">
+                            </div>
+                        </div>
+                        <div
+                            style="display:flex; justify-content:flex-end; gap:3px; align-items:center; margin-top:5px; font-size:9px; color:#888;">
+                            <span>Less</span>
+                            <div class="day-cell level-0" style="width:8px; height:8px;"></div>
+                            <div class="day-cell level-1" style="width:8px; height:8px;"></div>
+                            <div class="day-cell level-2" style="width:8px; height:8px;"></div>
+                            <div class="day-cell level-3" style="width:8px; height:8px;"></div>
+                            <div class="day-cell level-4" style="width:8px; height:8px;"></div>
+                            <span>More</span>
                         </div>
                     </div>
                     <div class="stat-card" style="border-color:var(--accent-lavender);">
@@ -2305,28 +2792,28 @@
                 <div class="settings-body">
                     <div v-if="ui.settingsView === 'model'">
                         <div
-                            style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--glass-border); padding-bottom:10px;">
+                            style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--glass-border); padding-bottom:10px; overflow-x:auto;">
                             <button class="btn" :class="{active: config.activeProvider === 'deepseek'}"
-                                @click="config.activeProvider = 'deepseek'" style="flex:1; justify-content:center;">🐋
+                                @click="config.activeProvider = 'deepseek'" style="flex:1; min-width:70px;">🐋
                                 Silicon</button>
                             <button class="btn" :class="{active: config.activeProvider === 'aihubmix'}"
-                                @click="config.activeProvider = 'aihubmix'" style="flex:1; justify-content:center;">🌌
+                                @click="config.activeProvider = 'aihubmix'" style="flex:1; min-width:70px;">🌌
                                 Mix</button>
-                            <!-- [新增] 自定义按钮 -->
+                            <button class="btn" :class="{active: config.activeProvider === 'local'}"
+                                @click="config.activeProvider = 'local'" style="flex:1; min-width:70px;">🏠
+                                Local</button>
                             <button class="btn" :class="{active: config.activeProvider === 'custom'}"
-                                @click="config.activeProvider = 'custom'" style="flex:1; justify-content:center;">⚙️
+                                @click="config.activeProvider = 'custom'" style="flex:1; min-width:70px;">⚙️
                                 Custom</button>
                         </div>
 
-                        <!-- DeepSeek 面板 (保持不变) -->
                         <div v-if="config.activeProvider === 'deepseek'">
                             <div class="form-group"><label class="form-label">API Key</label><input type="password"
                                     v-model="config.keys.deepseek" class="input-std"></div>
                             <div class="form-group"><label class="form-label">预设模型</label>
                                 <select v-model="config.models.deepseek" class="input-std">
-                                    <option value="deepseek-ai/DeepSeek-V3">DeepSeek V3 (🔮 推荐)</option>
+                                    <option value="deepseek-ai/DeepSeek-V3.2">DeepSeek V3.2 (推荐)</option>
                                     <option value="deepseek-ai/DeepSeek-R1">DeepSeek R1 (强推理)</option>
-                                    <option value="Qwen/Qwen2.5-72B-Instruct">Qwen 2.5 72B (通义千问)</option>
                                 </select>
                             </div>
                             <div class="form-group"><label class="form-label" style="color:var(--accent-primary)">⚡
@@ -2335,22 +2822,20 @@
                             <button class="btn" style="width:100%" @click="checkQuota('deepseek')">🔍 检查连通性</button>
                         </div>
 
-                        <!-- AIHubMix 面板 (保持不变) -->
                         <div v-if="config.activeProvider === 'aihubmix'">
                             <div class="form-group"><label class="form-label">API Key</label><input type="password"
                                     v-model="config.keys.aihubmix" class="input-std"></div>
                             <div class="form-group"><label class="form-label">预设模型</label>
                                 <select v-model="config.models.aihubmix" class="input-std">
-                                    <optgroup label="Grok">
-                                        <option value="grok-4">Grok 4</option>
-                                    </optgroup>
-                                    <optgroup label="Gemini">
-                                        <option value="gemini-2.5-pro">Gemini 2.5pro</option>
-                                        <option value="gemini-2.5-flash">Gemini 2.5flash</option>
-                                    </optgroup>
-                                    <optgroup label="Claude">
-                                        <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
-                                    </optgroup>
+                                    <option value="grok-4">Grok 4 (Fun Mode)</option>
+                                    <option value="grok-4-1-fast-reasoning">Grok 4.1R</option>
+                                    <option value="grok-4-1-fast-non-reasoning">Grok 4.1NR</option>
+                                    <option value="gemini-2.5-flash">Gemini 2.5 flash</option>
+                                    <option value="gemini-2.5-pro">Gemini 2.5 pro</option>
+                                    <option value="gemini-3.0-pro-preview">Gemini 3.0 pro</option>
+                                    <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                                    <option value="claude-sonnet-4-5">Claude 4.5 Sonnet</option>
+                                    <option value="claude-3-7-sonnet">Claude 3.7 Sonnet</option>
                                 </select>
                             </div>
                             <div class="form-group"><label class="form-label" style="color:var(--accent-primary)">⚡
@@ -2359,32 +2844,52 @@
                             <button class="btn" style="width:100%" @click="checkQuota('aihubmix')">🔍 检查连通性</button>
                         </div>
 
-                        <!-- [新增] Custom 自定义面板 -->
-                        <div v-if="config.activeProvider === 'custom'">
+                        <div v-if="config.activeProvider === 'local'">
                             <div class="form-group">
-                                <label class="form-label">🌐 接口地址 (Base URL)</label>
-                                <input v-model="config.urls.custom" class="input-std"
-                                    placeholder="例如: https://api.openai.com/v1/chat/completions">
-                                <div style="font-size:10px; color:var(--text-sub); margin-top:4px;">提示：必须包含完整路径 (通常以
-                                    /chat/completions 结尾)</div>
+                                <label class="form-label">🏠 接口地址 (API URL)</label>
+                                <input v-model="config.urls.local" class="input-std">
+                                <div style="font-size:10px; color:var(--text-sub); margin-top:4px;">默认:
+                                    <code>http://localhost:11434/v1/chat/completions</code>
+                                </div>
                             </div>
-                            <div class="form-group"><label class="form-label">🔑 API Key</label><input type="password"
-                                    v-model="config.keys.custom" class="input-std" placeholder="sk-..."></div>
-                            <div class="form-group"><label class="form-label">🤖 模型 ID</label><input
-                                    v-model="config.customModels.custom" class="input-std"
-                                    placeholder="例如: gpt-4o, deepseek-chat..."></div>
+                            <div class="form-group">
+                                <label class="form-label">🤖 模型名称 (Model Tag)</label>
+                                <input v-model="config.models.local" class="input-std" placeholder="例如: dolphin-llama3">
+                                <div style="font-size:10px; color:var(--text-sub); margin-top:4px;">需与
+                                    <code>ollama list</code> 里的名字完全一致
+                                </div>
+                            </div>
+                            <div class="form-group"><label class="form-label">🔑 伪造 Key (随便填)</label><input
+                                    type="password" v-model="config.keys.local" class="input-std"></div>
+                            <button class="btn" style="width:100%" @click="checkQuota('local')">🔍 检查本地连接</button>
+                        </div>
 
-                            <div
-                                style="background:rgba(0,0,0,0.03); padding:8px; border-radius:6px; margin-bottom:10px; font-size:11px; color:var(--text-sub);">
-                                <strong>本地运行 (Ollama) 指南:</strong><br>
-                                1. URL 填: <code>http://localhost:11434/v1/chat/completions</code><br>
-                                2. Key 随便填 (例如 "ollama")<br>
-                                3. 模型填: <code>llama3</code> 或 <code>qwen2</code>
-                            </div>
+                        <div v-if="config.activeProvider === 'custom'">
+                            <div class="form-group"><label class="form-label">🌐 接口地址</label><input
+                                    v-model="config.urls.custom" class="input-std"></div>
+                            <div class="form-group"><label class="form-label">🔑 API Key</label><input type="password"
+                                    v-model="config.keys.custom" class="input-std"></div>
+                            <div class="form-group"><label class="form-label">🤖 模型 ID</label><input
+                                    v-model="config.customModels.custom" class="input-std"></div>
                             <button class="btn" style="width:100%" @click="checkQuota('custom')">🔍 检查连通性</button>
                         </div>
 
                         <div style="margin-top:10px; font-size:12px; height:20px;" v-html="ui.quotaMsg"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">🌈 沉浸主题 (Atmosphere)</label>
+                        <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px; margin-top:5px;">
+                            <button class="btn" :class="{active: config.theme === 'light'}" @click="setTheme('light')"
+                                title="原初白" style="background:#fff; color:#333;">☀️</button>
+                            <button class="btn" :class="{active: config.theme === 'sepia'}" @click="setTheme('sepia')"
+                                title="羊皮纸" style="background:#f4ecd8; color:#5b4636;">📜</button>
+                            <button class="btn" :class="{active: config.theme === 'dark'}" @click="setTheme('dark')"
+                                title="深空灰" style="background:#18171d; color:#e8e6eb;">🌑</button>
+                            <button class="btn" :class="{active: config.theme === 'matrix'}" @click="setTheme('matrix')"
+                                title="黑客/终端" style="background:#000; color:#00ff41; font-family:monospace;">💻</button>
+                            <button class="btn" :class="{active: config.theme === 'eink'}" @click="setTheme('eink')"
+                                title="墨水屏" style="background:#fff; color:#000; border:2px solid #000;">📰</button>
+                        </div>
                     </div>
                     <div v-if="ui.settingsView === 'appearance'">
                         <div class="form-group">
@@ -2681,6 +3186,10 @@
             <div style="font-size:24px; font-weight:bold; margin-bottom:10px;">释放以导入书籍</div>
             <div style="opacity:0.7;">支持 .txt 格式 | 智能识别章节</div>
         </div>
+        <div v-if="pwa.canInstall" class="install-banner" @click="installPWA">
+            <span>📱 将 Hyacinth Writer 安装为应用</span>
+            <span style="background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:10px;">Install</span>
+        </div>
     </div>
 
     <script>
@@ -2749,10 +3258,24 @@
          * IndexedDB 封装与 RAG 搜索引擎
          */
         const SimpleDB = {
-            DB_NAME: 'HyacinthDB', STORE_NAME: 'kv_store', SNAP_STORE: 'snapshots', db: null,
+            DB_NAME: 'HyacinthDB',
+            STORE_NAME: 'kv_store',
+            SNAP_STORE: 'snapshots',
+            db: null,
+            isBlocked: false, // [新增] 标记数据库是否被浏览器禁用
+
             async init() {
-                return new Promise((resolve, reject) => {
+                return new Promise((resolve) => {
+                    // 1. 检查浏览器是否支持 IndexedDB
+                    if (!window.indexedDB) {
+                        console.warn("⚠️ Browser does not support IndexedDB.");
+                        this.isBlocked = true;
+                        resolve();
+                        return;
+                    }
+
                     const req = indexedDB.open(this.DB_NAME, 3);
+
                     req.onupgradeneeded = (e) => {
                         const db = e.target.result;
                         if (!db.objectStoreNames.contains(this.STORE_NAME)) db.createObjectStore(this.STORE_NAME);
@@ -2761,21 +3284,83 @@
                             st.createIndex('chapterIndex', 'chapterIndex', { unique: false });
                         }
                     };
-                    req.onsuccess = (e) => { this.db = e.target.result; resolve(); };
-                    req.onerror = (e) => reject(e);
+
+                    req.onsuccess = (e) => {
+                        this.db = e.target.result;
+                        this.isBlocked = false;
+                        console.log("✅ IndexedDB Connected");
+                        resolve();
+                    };
+
+                    // [核心修复] 捕获 Edge 的拦截错误，不让它抛出红字炸断程序
+                    req.onerror = (e) => {
+                        console.warn("⚠️ Database access blocked by browser privacy settings (Edge Tracking Prevention). Persistence disabled.");
+                        this.isBlocked = true;
+                        // 这里我们 resolve() 而不是 reject()，让程序继续运行下去，不要卡死
+                        resolve();
+                    };
                 });
             },
-            async get(key) { return new Promise((resolve) => { const tx = this.db.transaction(this.STORE_NAME, 'readonly'); const req = tx.objectStore(this.STORE_NAME).get(key); req.onsuccess = () => resolve(req.result); req.onerror = () => resolve(null); }); },
-            async set(key, val) { return new Promise((resolve) => { const tx = this.db.transaction(this.STORE_NAME, 'readwrite'); const req = tx.objectStore(this.STORE_NAME).put(JSON.parse(JSON.stringify(val)), key); req.onsuccess = () => resolve(); }); },
-            async clear() { return new Promise((resolve) => { const tx = this.db.transaction(this.STORE_NAME, 'readwrite'); tx.objectStore(this.STORE_NAME).clear().onsuccess = () => resolve(); }); },
+
+            async get(key) {
+                // 如果数据库被墙了，直接返回 null，假装无事发生
+                if (this.isBlocked || !this.db) return null;
+
+                return new Promise((resolve) => {
+                    try {
+                        const tx = this.db.transaction(this.STORE_NAME, 'readonly');
+                        const req = tx.objectStore(this.STORE_NAME).get(key);
+                        req.onsuccess = () => resolve(req.result);
+                        req.onerror = () => resolve(null);
+                    } catch (e) {
+                        console.warn("DB Read Error (Ignored):", e);
+                        resolve(null);
+                    }
+                });
+            },
+
+            async set(key, val) {
+                // 如果数据库被墙了，默默跳过保存，保证用户操作不卡顿
+                if (this.isBlocked || !this.db) return;
+
+                return new Promise((resolve) => {
+                    try {
+                        const tx = this.db.transaction(this.STORE_NAME, 'readwrite');
+                        // 使用 toRaw 确保存储的是原始对象
+                        const rawVal = toRaw(val);
+                        const req = tx.objectStore(this.STORE_NAME).put(rawVal, key);
+                        req.onsuccess = () => resolve();
+                        req.onerror = (e) => {
+                            console.warn("DB Write Error (Ignored):", e);
+                            resolve();
+                        };
+                    } catch (e) {
+                        console.warn("DB Transaction Error (Ignored):", e);
+                        resolve();
+                    }
+                });
+            },
+
+            // 同样为 clear 和快照增加防御
+            async clear() {
+                if (this.isBlocked || !this.db) return;
+                return new Promise((resolve) => {
+                    const tx = this.db.transaction(this.STORE_NAME, 'readwrite');
+                    tx.objectStore(this.STORE_NAME).clear().onsuccess = () => resolve();
+                });
+            },
+
             async saveSnapshot(snap) {
+                if (this.isBlocked || !this.db) return;
                 return new Promise((resolve) => {
                     const tx = this.db.transaction(this.SNAP_STORE, 'readwrite');
                     tx.objectStore(this.SNAP_STORE).put(snap);
                     tx.oncomplete = () => { this.garbageCollect(snap.chapterIndex); resolve(); };
                 });
             },
+
             async garbageCollect(chapIdx) {
+                if (this.isBlocked || !this.db) return;
                 const tx = this.db.transaction(this.SNAP_STORE, 'readwrite');
                 const store = tx.objectStore(this.SNAP_STORE);
                 const idx = store.index('chapterIndex');
@@ -2788,7 +3373,9 @@
                     }
                 };
             },
+
             async getSnapshots(chapIdx) {
+                if (this.isBlocked || !this.db) return [];
                 return new Promise((resolve) => {
                     const tx = this.db.transaction(this.SNAP_STORE, 'readonly');
                     const idx = tx.objectStore(this.SNAP_STORE).index('chapterIndex');
@@ -2854,31 +3441,34 @@
          * --- Region: Vue Logic ---
          * 核心 Vue 组件逻辑
          */
-        const { createApp, reactive, ref, computed, onMounted, watch, nextTick } = Vue;
+        const { createApp, reactive, ref, computed, onMounted, watch, nextTick, toRaw } = Vue;
 
         createApp({
             setup() {
                 // 1. 状态定义
                 const config = reactive({
                     activeProvider: 'deepseek',
-                    // 新增 custom 字段
-                    keys: { deepseek: "", aihubmix: "", custom: "" },
-                    // 新增 custom 默认模型
-                    models: { deepseek: "deepseek-ai/DeepSeek-V3", aihubmix: "grok-4", custom: "gpt-3.5-turbo" },
-                    customModels: { deepseek: "", aihubmix: "", custom: "" },
-                    // [NEW] 新增 API 地址配置 (Base URL)
+                    // [修改] 增加 local 字段，默认 key 填 ollama (随便填什么都行，只要不空)
+                    theme: 'light',
+                    keys: { deepseek: "", aihubmix: "", custom: "", local: "ollama" },
+                    // [修改] 增加 local 默认模型
+                    models: { deepseek: "deepseek-ai/DeepSeek-V3.2", aihubmix: "grok-4", custom: "gpt-3.5-turbo", local: "dolphin-llama3" },
+                    // [修改] 增加 local 自定义模型字段
+                    customModels: { deepseek: "", aihubmix: "", custom: "", local: "" },
+                    // [修改] 增加 local 接口地址
                     urls: {
                         deepseek: "https://api.siliconflow.cn/v1/chat/completions",
                         aihubmix: "https://api.aihubmix.com/v1/chat/completions",
-                        custom: "https://api.openai.com/v1/chat/completions" // 默认 OpenAI 官方地址
+                        custom: "https://api.openai.com/v1/chat/completions",
+                        local: "http://localhost:11434/v1/chat/completions"
                     },
                     appearance: { lineHeight: 1.8, density: 'loose' }
                 });
 
-                const project = reactive({ name: "未命名", protagonist: "", context: "", powerSystem: "", factions: "", codex: [], chapters: [{ title: "第一章", content: "" }], currentChap: 0, grimoires: [{ id: 'default', name: "默认人格", prompt: "你是一位专业小说家...", active: true }], lorebook: [], todos: [], plotholes: [] });
+                const project = reactive({ name: "未命名", protagonist: "", context: "", powerSystem: "", factions: "", codex: [], stats: {}, chapters: [{ title: "第一章", content: "" }], currentChap: 0, grimoires: [{ id: 'default', name: "默认人格", prompt: "你是一位专业小说家...", active: true }], lorebook: [], todos: [], plotholes: [] });
 
                 const ui = reactive({
-                    activeTab: 'tool', toolUseContext: true, useOptimizer: false, zenMode: false, toolSearch: '', activeTool: null, promptInput: '', temp: 1.0, usePacing: true, pacingVal: 0, isGenerating: false, stagingText: '', usePersona: true, editingGrimoire: null, modalSettings: false, modalChars: false, modalWorld: false, modalWriter: false, modalCustomTool: false, sidebarOpen: true, typewriterMode: false, quotaMsg: '', worldTab: 'macro', saveState: 'Ready', newChar: { name: '', role: '', visual: '', psyche: '', voice: '', goal: '' }, newCodex: { name: '', desc: '' }, newTodo: '', newHole: '', writerInput: '', writerOutput: '', dragSrcIndex: null, isDark: false, showFateDeck: false, tempContentBuffer: '', settingsView: 'model', showBookName: false, snapshots: [],
+                    activeTab: 'tool', toolUseContext: true, pendingHandle: null, showAmbient: false, useOptimizer: false, zenMode: false, toolSearch: '', activeTool: null, promptInput: '', temp: 1.0, usePacing: true, pacingVal: 0, isGenerating: false, stagingText: '', usePersona: true, editingGrimoire: null, modalSettings: false, modalChars: false, modalWorld: false, modalWriter: false, modalCustomTool: false, sidebarOpen: true, typewriterMode: false, quotaMsg: '', worldTab: 'macro', saveState: 'Ready', newChar: { name: '', role: '', visual: '', psyche: '', voice: '', goal: '' }, newCodex: { name: '', desc: '' }, newTodo: '', newHole: '', writerInput: '', writerOutput: '', dragSrcIndex: null, isDark: false, showFateDeck: false, tempContentBuffer: '', settingsView: 'model', showBookName: false, snapshots: [],
                     inkVisible: false, inkExpanded: false, inkPos: { x: 0, y: 0 }, inkInput: '', inkRange: null, lastRagContext: '',
                     chatInput: '', chatMessages: [], isChatting: false, modalImport: false, batchMode: false, importCandidate: null, isDragging: false
                 });
@@ -2891,6 +3481,25 @@
                 const allTools = ref([]);
                 const bookInput = ref(null);
                 const batchSelection = reactive(new Set());
+                const ambient = reactive({ rain: false, keyboard: false, volume: 0.5 });
+                const pwa = reactive({ canInstall: false, deferredPrompt: null });
+                const restoreConnection = async () => {
+                    if (!ui.pendingHandle) return;
+
+                    // 只有用户点击了，我们才能调用 verifyPermission
+                    const hasPerm = await verifyPermission(ui.pendingHandle, true);
+
+                    if (hasPerm) {
+                        fileHandle.value = ui.pendingHandle; // 正式激活
+                        ui.pendingHandle = null; // 清空待定状态
+                        alert(`✅ 已重新连接到 ${fileHandle.value.name}`);
+                    } else {
+                        // 用户拒绝了，或者文件被移动/删除了
+                        alert("❌ 无法恢复连接，请重新保存文件");
+                        ui.pendingHandle = null;
+                        SimpleDB.set('hw_file_handle', null); // 清除无效句柄
+                    }
+                };
 
                 // 2. 内部变量
                 let lastRange = null;
@@ -2920,13 +3529,12 @@
 
                 // 核心：保存到本地硬盘
                 const saveToDisk = async () => {
-                    // 1. 检查浏览器支持
-                    if (!window.showSaveFilePicker) return alert("❌ 您的浏览器不支持文件系统访问 (请使用 Chrome/Edge 桌面版)");
+                    if (!window.showSaveFilePicker) return alert("❌ 您的浏览器不支持文件系统访问");
 
                     try {
                         ui.saveState = "💾 Saving...";
 
-                        // 2. 如果没有句柄，请求用户创建一个新文件
+                        // 如果没有句柄，创建新文件
                         if (!fileHandle.value) {
                             const opts = {
                                 suggestedName: `《${project.name}》.txt`,
@@ -2935,27 +3543,26 @@
                             fileHandle.value = await window.showSaveFilePicker(opts);
                         }
 
-                        // 3. 创建写入流
+                        // [NEW] 核心改动：把句柄存入 IndexedDB
+                        // 注意：IndexedDB 能够序列化 FileSystemHandle
+                        await SimpleDB.set('hw_file_handle', fileHandle.value);
+
+                        // 写入流程
                         const writable = await fileHandle.value.createWritable();
-
-                        // 4. 生成文本并写入
-                        const content = generateFullText(false); // 默认保存 TXT，兼容性最好
+                        const content = generateFullText(false);
                         await writable.write(content);
-
-                        // 5. 关闭流
                         await writable.close();
 
                         ui.saveState = "✅ Linked";
-
-                        // 自动创建一个快照
                         takeSnapshot("硬盘同步完成");
+
                     } catch (err) {
                         if (err.name !== 'AbortError') {
                             console.error(err);
                             alert("保存失败: " + err.message);
                             ui.saveState = "❌ Error";
                         } else {
-                            ui.saveState = "Ready"; // 用户取消
+                            ui.saveState = "Ready";
                         }
                     }
                 };
@@ -2987,7 +3594,7 @@
                     if (ui.activeTab === 'status') refreshSnapshots();
                 };
                 const refreshSnapshots = async () => { const list = await SimpleDB.getSnapshots(project.currentChap); ui.snapshots = list.map(s => ({ ...s, displayTime: s.timestamp.split(' ')[1] })); };
-                const restoreSnapshot = (snap) => { if (!confirm(`⚠️ 确认回滚到 [${snap.displayTime}] 的版本吗？`)) return; takeSnapshot("回滚前备份"); project.chapters[project.currentChap].content = snap.content; refreshEditor(); alert("✅ 回滚成功"); };
+                const restoreSnapshot = (snap) => { if (!confirm(`⚠️ 确认回滚到 [${snap.displayTime}] 的版本吗？`)) return; takeSnapshot("回滚前备份"); project.chapters[project.currentChap].content = snap.content; refreshEditor(); alert("✅ 回滚成功"); if (isMobile()) ui.sidebarOpen = false; };
                 const refreshEditor = () => { if (editorDiv.value) editorDiv.value.innerText = project.chapters[project.currentChap]?.content || ""; lastSnapshotLength = project.chapters[project.currentChap]?.content?.length || 0; };
 
                 // 5. 业务逻辑：墨灵与编辑器交互
@@ -3099,6 +3706,7 @@
 
                 // 7. 生命周期：挂载
                 onMounted(async () => {
+                    initPWA();
                     await SimpleDB.init();
                     const savedConfig = await SimpleDB.get('hw_v29_config');
                     if (savedConfig) {
@@ -3117,20 +3725,31 @@
                     }
                     const savedProject = await SimpleDB.get('hw_v29_project'); if (savedProject) Object.assign(project, savedProject);
                     await loadTools();
+                    const savedHandle = await SimpleDB.get('hw_file_handle');
+                    if (savedHandle) { ui.pendingHandle = savedHandle; }
                     const savedUI = await SimpleDB.get('hw_ui_prefs');
                     if (savedUI) { if (savedUI.usePacing !== undefined) ui.usePacing = savedUI.usePacing; if (savedUI.usePersona !== undefined) ui.usePersona = savedUI.usePersona; }
                     const savedChat = await SimpleDB.get('hw_chat_history');
                     if (savedChat && Array.isArray(savedChat)) { ui.chatMessages = savedChat; nextTick(() => { const b = document.getElementById('chat-box'); if (b) b.scrollTop = b.scrollHeight; }); }
-                    const savedTheme = localStorage.getItem('hw_theme');
-                    if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); ui.isDark = true; }
+                    const savedStyle = localStorage.getItem('hw_theme_style');
+                    if (savedStyle) {
+                        setTheme(savedStyle);
+                    } else {
+                        // 兼容旧版逻辑
+                        const savedThemeOld = localStorage.getItem('hw_theme');
+                        if (savedThemeOld === 'dark') setTheme('dark');
+                    }
                     refreshEditor(); refreshSnapshots();
                     Archivist.build(project); // Async build RAG
 
-                    window.addEventListener('keydown', (e) => {
+                    window.addEventListener('keydown', async (e) => {
                         // Ctrl+S: 保存到硬盘
                         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-                            e.preventDefault();
-                            saveToDisk(); // 调用刚才写的函数
+                            e.preventDefault(); // 关键：阻止浏览器弹出“另存为网页”对话框
+                            e.stopPropagation(); // 关键：阻止事件冒泡
+
+                            console.log("⚡ 拦截到保存指令，开始执行 saveToDisk..."); // 调试用
+                            await saveToDisk();
                         }
                         // Ctrl+E: 沉浸模式
                         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
@@ -3193,6 +3812,7 @@
 
                 // 10. 事件处理函数集
                 const onEditorInput = (e) => {
+                    playKeySound();
                     if (ui.saveState !== '✎ Writing...') ui.saveState = '✎ Writing...';
                     bloomCounter++; if (bloomCounter % 3 === 0) spawnBloom();
                     const txt = e.target.innerText.replace(/\u200B/g, '');
@@ -3202,8 +3822,117 @@
                 };
                 const onEditorPaste = (e) => { e.preventDefault(); const text = (e.clipboardData || window.clipboardData).getData('text'); document.execCommand('insertText', false, text); };
                 const toggleTheme = () => { document.body.classList.toggle('dark-mode'); const isDark = document.body.classList.contains('dark-mode'); localStorage.setItem('hw_theme', isDark ? 'dark' : 'light'); ui.isDark = isDark; };
+                const setTheme = (name) => {
+                    config.theme = name;
+                    // 移除所有已知的主题类
+                    document.body.classList.remove('dark-mode', 'theme-sepia', 'theme-matrix', 'theme-eink');
+
+                    // 根据选择添加对应的类
+                    if (name === 'dark') document.body.classList.add('dark-mode');
+                    else if (name !== 'light') document.body.classList.add(`theme-${name}`);
+
+                    // 这种高级主题设置，我们也顺手存到 localStorage 吧，防止刷新丢失
+                    localStorage.setItem('hw_theme_style', name);
+
+                    // 同步 ui.isDark 状态，保证右上角那个小月亮图标逻辑不崩
+                    ui.isDark = (name === 'dark' || name === 'matrix');
+                };
                 const triggerFileSelect = () => { if (fileInput.value) fileInput.value.click(); };
-                const handleFileUpload = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { const text = ev.target.result.slice(0, 3000); project.grimoires.push({ id: Date.now().toString(), name: file.name.replace(/\.[^/.]+$/, ""), prompt: `【基于文件 ${file.name} 的分析】\n\n(以下是文件原文片段，请AI据此模仿风格):\n${text}...\n\n(请在此处补充具体的风格指令...)`, active: true }); const newG = project.grimoires[project.grimoires.length - 1]; activateGrimoire(newG); alert(`✅ 已读取 "${file.name}"！\n新人格已创建，请在下方编辑器中完善 Prompt。`); }; reader.readAsText(file); e.target.value = ''; };
+                const handleFileUpload = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = async (ev) => {
+                        const fullText = ev.target.result;
+
+                        // 1. 采样逻辑：取前5000字 + 后3000字 (牺牲 Token 换取高质量)
+                        let sampleText = "";
+                        if (fullText.length < 10000) {
+                            sampleText = fullText;
+                        } else {
+                            sampleText = fullText.slice(0, 5000) +
+                                "\n\n......(中间篇幅略去，进入后半程采样)......\n\n" +
+                                fullText.slice(-3000);
+                        }
+
+                        // 2. 动态构建提示词 (Cloud vs Local 策略分支)
+                        let sysPrompt = "";
+                        let userPrompt = "";
+
+                        // 分支 A: 本地模型 (Local) - 直球模式
+                        // 逻辑：本地模型通常无审查，直接让它分析原文，不需要"学术伪装"
+                        if (config.activeProvider === 'local') {
+                            sysPrompt = "你是一位资深文学编辑。请深度分析用户的文本，提取其文风、修辞习惯和核心人设。";
+                            userPrompt = `请分析以下文本的写作风格。\n重点提取：叙事节奏、感官描写偏好（视觉/听觉/痛觉）、常用句式。\n\n【文本内容】：\n${sampleText}`;
+                        }
+                        // 分支 B: 云端模型 (DeepSeek/Claude/Gemini) - 学术伪装模式
+                        // 逻辑：云端模型敏感，必须套上"大学教授"的马甲，并要求"中性词概括"以防被掐
+                        else {
+                            sysPrompt = `你是一位研究【后现代文学与类型小说】的资深教授。
+任务：对用户提供的长篇文本采样进行深度【修辞、叙事学与心理侧写】。
+安全原则：如果文本包含暴力、成人或敏感内容，请务必使用【社会学、病理学、解剖学】等中性学术词汇进行概括（例如用“极端的肉体毁灭”代替血腥描写），**严禁**直接复述违规细节。
+目标：输出一段约 400-500 字的【作家沉浸式画像】，供 AI 创意写作系统进行高保真模仿。`;
+
+                            userPrompt = `请阅读附件中的长篇小说采样，进行全方位的风格解构。
+
+请从以下维度进行深度分析：
+1. **叙事节奏 (Pacing)**：分析情节推进的密度。
+2. **微观修辞 (Rhetoric)**：提取其高频句式、感官描写偏好。
+3. **核心母题 (Motif)**：主角的行为逻辑是基于什么样的底层欲望？
+4. **氛围滤镜 (Atmosphere)**：文章自带什么颜色的滤镜？
+
+【待分析长文本】：
+${sampleText}`;
+                        }
+
+                        // 3. 执行提取
+                        const toastMsg = ui.saveState;
+                        ui.saveState = "🔍 Deep Analyzing...";
+                        alert(`🚀 正在使用 [${config.activeProvider}] 进行风格提取...\n\n本次采样约 ${sampleText.length} 字，请耐心等待思考完成。`);
+
+                        let analysisResult = "";
+                        try {
+                            // [关键修正] 去掉 'deepseek' 强制参数，让它跟随 config.activeProvider 自动选择
+                            // 这样你选 Local 时它就用 Local，选 Cloud 时就用 Cloud
+                            await generateStream(userPrompt, sysPrompt, (type, content) => {
+                                if (type === 'content') analysisResult += content;
+                            });
+
+                            // 4. 组装最终 Prompt
+                            const finalPersona = `【核心指令：深度风格模仿】
+你现在的身份是具有以下鲜明文学特征的小说家（基于全书深度侧写）：
+
+${analysisResult}
+
+----------------
+【执行铁律】
+1. **神韵复刻**：写作时必须完全浸入上述“作家画像”的思维模式。
+2. **艺术化处理**：对于敏感或激烈的冲突情节，请运用侧写、通感和电影蒙太奇手法，写出“高级感”。
+3. **节奏对齐**：参考画像中的“叙事节奏”，控制段落的呼吸感。`;
+
+                            // 5. 存入魔法书
+                            project.grimoires.push({
+                                id: Date.now().toString(),
+                                name: `[精读] ${file.name.replace(/\.[^/.]+$/, "")}`,
+                                prompt: finalPersona,
+                                active: true
+                            });
+
+                            // 6. 激活
+                            activateGrimoire(project.grimoires[project.grimoires.length - 1]);
+                            alert(`✅ 深度提取完成！\n已生成【${analysisResult.length}字】的高精度作家画像。`);
+
+                        } catch (err) {
+                            console.error(err);
+                            alert("❌ 提取失败：" + err.message + "\n如果文本过长导致超时，请尝试切割文件。");
+                        } finally {
+                            ui.saveState = toastMsg;
+                        }
+                    };
+                    reader.readAsText(file);
+                    e.target.value = '';
+                };
                 const checkQuota = async (provider) => {
                     const key = config.keys[provider];
                     if (!key) { ui.quotaMsg = "<span style='color:red'>❌ No Key</span>"; return; }
@@ -3329,13 +4058,17 @@
                     // 无论是否关联世界观，都建议开启 DeepSeek 优化
                     // 因为即使是独立灵感，DeepSeek 的构思能力也比直接生成强
                     ui.useOptimizer = true;
+                    if (isMobile()) ui.sidebarOpen = false;
                 };
                 const createGrimoire = () => { project.grimoires.push({ id: Date.now().toString(), name: "新人格", prompt: "请输入...", active: false }); };
                 const activateGrimoire = (g) => { project.grimoires.forEach(x => x.active = false); g.active = true; ui.editingGrimoire = g; };
                 const deleteGrimoire = () => { if (!confirm("删除?")) return; const idx = project.grimoires.findIndex(x => x.id === ui.editingGrimoire.id); if (idx > -1) project.grimoires.splice(idx, 1); ui.editingGrimoire = null; };
                 const addChapter = (isVol) => { project.chapters.push({ title: isVol ? "=== 卷标 ===" : "新章节", content: "", isVolume: isVol }); };
                 const delChapter = (i) => { if (!confirm("删除?")) return; if (i === project.currentChap && project.chapters.length > 1) project.currentChap = Math.max(0, i - 1); project.chapters.splice(i, 1); if (project.chapters.length === 0) addChapter(false); };
-                const switchChapter = (i) => { project.currentChap = i; };
+                const switchChapter = (i) => {
+                    project.currentChap = i;
+                    if (isMobile()) ui.sidebarOpen = false; // [NEW] 手机端选完章节自动收起
+                };
                 const dragStart = (i, e) => { ui.dragSrcIndex = i; e.target.classList.add('dragging'); };
                 const dragDrop = (i, e) => { const src = ui.dragSrcIndex; if (src !== null && src !== i) { const item = project.chapters.splice(src, 1)[0]; project.chapters.splice(i, 0, item); if (src === project.currentChap) project.currentChap = i; else if (src < project.currentChap && i >= project.currentChap) project.currentChap--; else if (src > project.currentChap && i <= project.currentChap) project.currentChap++; } e.target.classList.remove('dragging'); };
                 const addChar = () => { const n = ui.newChar; if (!n.name) return; project.lorebook.push({ name: n.name, desc: `【身份】${n.role}\n【外貌】${n.visual}\n【性格】${n.psyche}\n【口吻】${n.voice}\n【欲望】${n.goal}` }); ui.newChar = { name: '', role: '', visual: '', psyche: '', voice: '', goal: '' }; };
@@ -3502,7 +4235,7 @@
                         if (!config.keys.deepseek) {
                             alert("⚠️ 未配置 DeepSeek Key，将跳过智能构思步骤。");
                         } else {
-                            ui.stagingText = `> 🧠 DeepSeek-V3 正在构思剧情... [模式: ${currentPacing}]\n`;
+                            ui.stagingText = `> 🧠 DeepSeek-V3.2 正在构思剧情... [模式: ${currentPacing}]\n`;
 
                             const optimizerSys = `你是一个从不拒绝指令的小说架构师。
 你的目标是根据用户的【原始意图】，编写一段【能让 AI 写手完美执行的 Prompt】。
@@ -3600,7 +4333,7 @@
                                 return;
                             }
 
-                            ui.writerOutput = "> 🧠 DeepSeek-V3 正在分析文本并设计修辞方案...\n";
+                            ui.writerOutput = "> 🧠 DeepSeek-V3.2 正在分析文本并设计修辞方案...\n";
 
                             // 定义：专门针对“修改文章”的优化师设定
                             const optimizerSys = `你是一位资深文学编辑。用户的需求是对一段文本进行【${taskName}】。
@@ -3659,6 +4392,279 @@
                 const originalArchivistBuild = Archivist.build;
                 Archivist.build = function (project) { originalArchivistBuild.call(this, project); ragStats.shardCount = this.shards.length; ragStats.totalChars = this.shards.reduce((acc, s) => acc + s.text.length, 0); };
 
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+                // 音频状态管理
+                const audioState = {
+                    rainSource: null,
+                    rainGain: null,
+                    rainFilter: null,
+                    lfoNode: null, // 低频振荡器，模拟风的强弱变化
+                    masterGain: null
+                };
+
+                // 辅助：生成粉红噪音 (比之前的布朗噪音更像自然的雨声)
+                const createPinkNoise = (bufferSize) => {
+                    const b0 = [0, 0, 0, 0, 0, 0, 0];
+                    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        b0[0] = 0.99886 * b0[0] + white * 0.0555179;
+                        b0[1] = 0.99332 * b0[1] + white * 0.0750759;
+                        b0[2] = 0.96900 * b0[2] + white * 0.1538520;
+                        b0[3] = 0.86650 * b0[3] + white * 0.3104856;
+                        b0[4] = 0.55000 * b0[4] + white * 0.5329522;
+                        b0[5] = -0.7616 * b0[5] - white * 0.0168980;
+                        data[i] = b0[0] + b0[1] + b0[2] + b0[3] + b0[4] + b0[5] + white * 0.5362;
+                        data[i] *= 0.11; // 基础增益修正
+                    }
+                    return buffer;
+                };
+
+                // 1. 🌧️ 动态雨声系统 (Dynamic Rain)
+                const toggleRain = () => {
+                    if (ambient.rain) {
+                        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                        // 防止重复创建
+                        if (audioState.rainSource) return;
+
+                        const bufferSize = 5 * audioCtx.sampleRate; // 5秒循环，减少重复感
+                        const buffer = createPinkNoise(bufferSize);
+
+                        audioState.rainSource = audioCtx.createBufferSource();
+                        audioState.rainSource.buffer = buffer;
+                        audioState.rainSource.loop = true;
+
+                        // 动态低通滤波器 (模拟雨声的闷感)
+                        audioState.rainFilter = audioCtx.createBiquadFilter();
+                        audioState.rainFilter.type = 'lowpass';
+                        audioState.rainFilter.frequency.value = 800;
+
+                        // LFO (低频振荡器)：模拟风吹雨打的强弱变化，不再死板
+                        audioState.lfoNode = audioCtx.createOscillator();
+                        audioState.lfoNode.type = 'sine';
+                        audioState.lfoNode.frequency.value = 0.15; // 每7秒变化一次强弱
+
+                        const lfoGain = audioCtx.createGain();
+                        lfoGain.gain.value = 400; // 滤波器频率摆动范围 +/- 400Hz
+
+                        // 链接 LFO -> Filter Frequency
+                        audioState.lfoNode.connect(lfoGain);
+                        lfoGain.connect(audioState.rainFilter.frequency);
+
+                        // 主音量
+                        audioState.rainGain = audioCtx.createGain();
+                        audioState.rainGain.gain.value = ambient.volume * 0.8;
+
+                        // 连接图：Source -> Filter -> Gain -> Out
+                        audioState.rainSource.connect(audioState.rainFilter);
+                        audioState.rainFilter.connect(audioState.rainGain);
+                        audioState.rainGain.connect(audioCtx.destination);
+
+                        audioState.rainSource.start();
+                        audioState.lfoNode.start();
+
+                    } else {
+                        // 优雅淡出 (0.5秒)
+                        if (audioState.rainGain) {
+                            audioState.rainGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.2);
+                            setTimeout(() => {
+                                if (audioState.rainSource) {
+                                    audioState.rainSource.stop();
+                                    audioState.rainSource.disconnect();
+                                    audioState.lfoNode.stop();
+                                    audioState.lfoNode.disconnect();
+                                    audioState.rainSource = null;
+                                }
+                            }, 500);
+                        }
+                    }
+                };
+
+                // 2. ⌨️ 机械键盘物理建模 (Mechanical Switch Simulation)
+                // 模拟 "Thocky" 线性轴的声音
+                const playKeySound = () => {
+                    if (!ambient.keyboard) return;
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                    const t = audioCtx.currentTime;
+                    const volume = ambient.volume * 0.6;
+
+                    // 随机微扰 (Humanization)：让每次按键声音略有不同
+                    const detune = (Math.random() - 0.5) * 100; // 音调浮动
+                    const timing = (Math.random() - 0.5) * 0.01; // 时间微小浮动
+
+                    // Layer 1: 撞击声 (The Click/Transient) - 短促的高频噪音
+                    const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.01, audioCtx.sampleRate);
+                    const output = noiseBuffer.getChannelData(0);
+                    for (let i = 0; i < output.length; i++) output[i] = Math.random() * 2 - 1;
+
+                    const clickSrc = audioCtx.createBufferSource();
+                    clickSrc.buffer = noiseBuffer;
+                    const clickFilter = audioCtx.createBiquadFilter();
+                    clickFilter.type = 'highpass';
+                    clickFilter.frequency.value = 2000;
+                    const clickGain = audioCtx.createGain();
+                    clickGain.gain.setValueAtTime(volume * 0.5, t);
+                    clickGain.gain.exponentialRampToValueAtTime(0.01, t + 0.01);
+
+                    clickSrc.connect(clickFilter);
+                    clickFilter.connect(clickGain);
+                    clickGain.connect(audioCtx.destination);
+                    clickSrc.start(t);
+
+                    // Layer 2: 腔体共鸣 (The Body/Thock) - 快速下降的三角波
+                    const osc = audioCtx.createOscillator();
+                    osc.type = 'triangle';
+                    // 模拟键帽触底的频率下降 (从 300Hz 降到 60Hz)
+                    osc.frequency.setValueAtTime(300 + detune, t);
+                    osc.frequency.exponentialRampToValueAtTime(60 + detune, t + 0.08);
+
+                    const bodyGain = audioCtx.createGain();
+                    bodyGain.gain.setValueAtTime(0, t);
+                    bodyGain.gain.linearRampToValueAtTime(volume, t + 0.005); // Attack
+                    bodyGain.gain.exponentialRampToValueAtTime(0.01, t + 0.1); // Decay
+
+                    // 低通滤波去除电子味
+                    const bodyFilter = audioCtx.createBiquadFilter();
+                    bodyFilter.type = 'lowpass';
+                    bodyFilter.frequency.value = 800;
+
+                    osc.connect(bodyFilter);
+                    bodyFilter.connect(bodyGain);
+                    bodyGain.connect(audioCtx.destination);
+
+                    osc.start(t);
+                    osc.stop(t + 0.15);
+                };
+
+                const updateVolume = () => {
+                    if (audioState.rainGain) {
+                        // 平滑过渡音量
+                        audioState.rainGain.gain.setTargetAtTime(ambient.volume * 0.8, audioCtx.currentTime, 0.1);
+                    }
+                };
+                // --- Region: PWA Logic (Manifest Injection) ---
+                const initPWA = () => {
+                    // 1. 动态生成 Manifest JSON
+                    const manifest = {
+                        name: "Hyacinth Writer",
+                        short_name: "Hyacinth",
+
+                        // [FIX] 修复 start_url 报错
+                        // Blob URL 无法解析相对路径 ".", 必须给它当前页面的完整地址
+                        start_url: window.location.href,
+
+                        display: "standalone",
+                        background_color: "#f4f6f9",
+                        theme_color: "#9b59b6",
+                        description: "Zero-Gravity Local-First Writer",
+                        icons: [
+                            {
+                                src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪶</text></svg>",
+                                sizes: "192x192 512x512",
+                                type: "image/svg+xml"
+                            }
+                        ]
+                    };
+                    // 2. 转换为 Blob URL
+                    const stringManifest = JSON.stringify(manifest);
+                    const blob = new Blob([stringManifest], { type: 'application/json' });
+                    const manifestURL = URL.createObjectURL(blob);
+
+                    // 3. 注入 HTML
+                    const link = document.createElement('link');
+                    link.rel = 'manifest';
+                    link.href = manifestURL;
+                    document.head.appendChild(link);
+
+                    // 4. 监听安装事件
+                    window.addEventListener('beforeinstallprompt', (e) => {
+                        e.preventDefault();
+                        pwa.deferredPrompt = e;
+                        pwa.canInstall = true;
+                    });
+                };
+
+                const installPWA = async () => {
+                    if (!pwa.deferredPrompt) return;
+                    pwa.deferredPrompt.prompt();
+                    const { outcome } = await pwa.deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        pwa.canInstall = false;
+                    }
+                    pwa.deferredPrompt = null;
+                };
+                const verifyPermission = async (handle, readWrite) => {
+                    const opts = {};
+                    if (readWrite) {
+                        opts.mode = 'readwrite';
+                    }
+                    // 检查当前权限状态
+                    if ((await handle.queryPermission(opts)) === 'granted') {
+                        return true;
+                    }
+                    // 如果没有权限，请求权限 (这会触发浏览器弹窗)
+                    if ((await handle.requestPermission(opts)) === 'granted') {
+                        return true;
+                    }
+                    return false;
+                };
+                const isMobile = () => window.innerWidth <= 768;
+                let lastRecordTime = 0;
+                // 注意：这里直接使用 Vue 的 watch 函数
+                watch(() => project.content, (newVal) => {
+                    const now = Date.now();
+                    // 限制频率：每 5 秒最多记录一次
+                    if (now - lastRecordTime > 5000) {
+                        const today = new Date().toISOString().split('T')[0]; // 获取 "2025-12-17"
+                        if (!project.stats) project.stats = {}; // 防御性初始化
+                        project.stats[today] = newVal.length; // 记录当前总字数
+                        lastRecordTime = now;
+                    }
+                });
+
+                // 2. 热力图数据生成器 (Computed)
+                // 注意：这里直接使用 Vue 的 computed 函数
+                const heatmapData = computed(() => {
+                    const days = [];
+                    const today = new Date();
+                    // 生成过去 12 周 (约84天) 的数据
+                    for (let i = 83; i >= 0; i--) {
+                        const d = new Date();
+                        d.setDate(today.getDate() - i);
+                        const dateStr = d.toISOString().split('T')[0];
+
+                        const currentCount = project.stats?.[dateStr] || 0;
+
+                        // 获取前一天的字数 (用于计算增量)
+                        const prevD = new Date(d);
+                        prevD.setDate(d.getDate() - 1);
+                        const prevDateStr = prevD.toISOString().split('T')[0];
+                        const prevCount = project.stats?.[prevDateStr] || 0;
+
+                        // 计算【今日净增量】
+                        let delta = 0;
+                        if (project.stats?.[prevDateStr] === undefined) {
+                            delta = currentCount > 0 ? 100 : 0;
+                        } else {
+                            delta = Math.max(0, currentCount - prevCount);
+                        }
+
+                        // 确定颜色等级
+                        let level = 0;
+                        if (delta > 0) level = 1;
+                        if (delta > 500) level = 2;
+                        if (delta > 2000) level = 3;
+                        if (delta > 5000) level = 4;
+
+                        days.push({ date: dateStr, count: currentCount, delta: delta, level: level });
+                    }
+                    return days;
+                });
+
                 return {
                     config, project, ui, toolInputs, currentModelDisplay, pacingLabel, currentWordCount, filteredTools,
                     editorDiv, toggleTheme, checkQuota, resetAll, getToolFields, openTool, applyTool, createGrimoire,
@@ -3667,9 +4673,10 @@
                     applyWriter, runEngine, acceptStaging, renderMarkdown, addTodo, addHole, onEditorInput,
                     onEditorPaste, refreshEditor, editorUndo, editorClear, fileInput, triggerFileSelect,
                     handleFileUpload, toolBuilder, openToolBuilder, addBuilderField, saveToolToDB, allTools, deleteTool,
-                    toggleInsight, restoreSnapshot, bookInput, triggerBookImport, handleBookImport,
+                    toggleInsight, restoreSnapshot, bookInput, triggerBookImport, handleBookImport, heatmapData, setTheme,
                     toggleInkMenu, runInkMagic, confirmImport, batchSelection, toggleBatchMode, toggleChapterSelect, selectAllChapters, batchDelete,
-                    ragStats, forceRebuildIndex, sendChatMessage, clearChatHistory, onFileDrop, saveToDisk, saveAsDisk, isFileLinked, fileHandle
+                    ragStats, forceRebuildIndex, sendChatMessage, clearChatHistory, onFileDrop, saveToDisk, saveAsDisk, isFileLinked, fileHandle,
+                    ambient, pwa, toggleRain, updateVolume, installPWA, restoreConnection
                 };
             }
         }).mount('#app');
